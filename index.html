@@ -279,6 +279,15 @@ h1, h2, h3 { text-wrap: balance; }
   background-attachment: local;
 }
 .lined:focus { outline: none; background-image: linear-gradient(transparent 33px, var(--pen) 33px); }
+.prop { border: 0; margin: 0; padding: 22px 0 6px; border-top: 1.5px solid var(--ink); display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.prop legend { padding: 0 10px 0 0; font-size: 14px; font-weight: 700; color: var(--pen); }
+.prop .line-input { font-size: 19px; }
+.prop-actions { display: flex; gap: 10px 24px; flex-wrap: wrap; }
+.addprop { background: none; border: 0; padding: 8px 0; cursor: pointer; font-weight: 600; font-size: 15px; border-bottom: 1.5px solid var(--ink); }
+.addprop.remove { color: var(--faint); border-bottom-color: var(--rule); }
+#crosslink { padding: 0 0 28px; }
+.crosslink { margin: 0; font-size: 15px; color: var(--soft); }
+.crosslink a { font-weight: 600; color: var(--ink); text-underline-offset: 3px; }
 .counter { font-size: 13px; color: var(--faint); text-align: right; font-variant-numeric: tabular-nums; }
 
 .qnav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -414,6 +423,7 @@ dialog.drawer::backdrop { background: rgba(0, 0, 0, 0.35); }
       </section>
     </main>
 
+    <p class="crosslink" id="crosslink">Ets delegat o delegada? Hi ha un <a href="delegats/">mòdul per a delegats</a> amb preguntes sobre el consell de delegats.</p>
     <footer class="footer">
       <span>Quòrum · Enquesta de l'alumnat · Curs 2026-27</span>
       <span>Iniciativa d'alumnes. No és una pàgina oficial del centre.</span>
@@ -470,6 +480,9 @@ const CONFIG = {
 };
 const DEMO = !CONFIG.ENDPOINT.startsWith("https://script.google.com/");
 const CONTACT_TEXT = CONFIG.CONTACT;
+const MODE = (new URLSearchParams(location.search).get("mode") === "delegats" || /\/delegats(\/|\/index\.html)?$/.test(location.pathname)) ? "delegats" : "general";
+const SHEET_TAB = MODE === "delegats" ? "Delegats" : "Respostes";
+const SENT_KEY = "quorum-enviada-" + MODE;
 
 /* ================= TEXTOS D'INFORMACIÓ ================= */
 const INFO = {
@@ -506,47 +519,78 @@ const INFO = {
 };
 
 /* ================= PREGUNTES ================= */
-const BLOCKS = { tu: "Abans de començar", vaga: "Vaga", ce: "Consell escolar", pet: "Peticions i comunicació", val: "Valoració" };
-const STEPS = [
+const BLOCKS = { tu: "Abans de començar", vaga: "Vaga", ce: "Consell escolar", pet: "Peticions i comunicació", val: "Valoració", cd: "Consell de delegats", prop: "Propostes" };
+const G_STEPS = [
   { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
     help: "El nom només serveix per comprovar que responen alumnes reals i un sol cop. No es passarà a ningú." },
   { id: "q1", block: "vaga", type: "choice", short: "Sabies que cal un 75%",
-    q: "Sabies que les normes del centre demanen que el 75% de la classe vulgui fer vaga perquè s'autoritzi?", opts: ["Sí", "No"] },
-  { id: "q2", block: "vaga", type: "choice", short: "Percentatge que et sembla just", other: "Un altre",
-    q: "Quin percentatge et semblaria just per autoritzar una vaga?", opts: ["Majoria simple (més del 50%)", "60%", "Dos terços (66%)", "75%", "Un altre"] },
+    q: "Sabies que les normes de l'institut demanen que el 75% de la classe estigui a favor de fer vaga perquè l'autoritzin?", opts: ["Sí", "No"] },
+  { id: "q2", block: "vaga", type: "choice", short: "Percentatge que et sembla just", other: "Un altre percentatge",
+    q: "Quin percentatge et semblaria just per autoritzar una vaga?", opts: ["Més del 50% (majoria simple)", "60%", "Dos terços (67%)", "75%", "Un altre percentatge"] },
   { id: "q3", block: "vaga", type: "choice", short: "No has pogut fer vaga pel percentatge",
     q: "Alguna vegada has volgut fer vaga i no has pogut perquè la classe no arribava al percentatge?", opts: ["Sí", "No", "No ho sé"] },
   { id: "q4", block: "ce", type: "choice", short: "Coneixes els representants",
     q: "Saps qui són els representants de l'alumnat al consell escolar?", opts: ["Sí", "No"] },
   { id: "q5", block: "ce", type: "choice", short: "Et van dir que podies presentar-te",
-    q: "A les últimes eleccions al consell escolar, et van informar que et podies presentar com a candidat o candidata?", opts: ["Sí", "No", "No ho recordo"] },
-  { id: "q6", block: "ce", type: "choice", short: "Com et van arribar les candidatures",
-    q: "Com et van arribar les candidatures?", opts: ["Els candidats van passar per classe", "Per escrit o per correu", "No en vaig saber res"] },
+    q: "A les últimes eleccions al consell escolar, et van dir que t'hi podies presentar?", opts: ["Sí", "No", "No ho recordo"] },
+  { id: "q6", block: "ce", type: "choice", short: "Com vas conèixer els candidats",
+    q: "Com vas conèixer els candidats?", opts: ["Van passar per la meva classe", "Per escrit o per correu", "No en vaig saber res"] },
   { id: "q7", block: "ce", type: "choice", short: "Informació per votar",
-    q: "Abans de votar, tenies prou informació per decidir?", opts: ["Gens", "Poca", "Suficient", "Molta"] },
+    q: "Quanta informació tenies sobre els candidats abans de votar?", opts: ["Cap", "Poca", "La suficient", "Molta", "No vaig votar"] },
   { id: "q8", block: "pet", type: "choice", short: "Has demanat alguna cosa",
     q: "Has demanat mai alguna cosa a direcció, directament o a través del tutor o dels delegats?", opts: ["Sí", "No"],
     help: "Si respons que sí, a la pregunta següent et demanarem què va passar." },
   { id: "q9", block: "pet", type: "choice", short: "Què va passar", when: a => a.q8 === "Sí",
-    q: "Què va passar?", opts: ["Es va fer", "Em van respondre, però no va canviar res", "No hi va haver resposta"] },
+    q: "Què va passar?", opts: ["Es va fer el que demanava", "Em van respondre, però no va canviar res", "No hi va haver resposta"] },
   { id: "q10", block: "pet", type: "choice", short: "Porta més propera a l'aula",
-    q: "La porta per on has d'entrar és la més propera a la teva aula?", opts: ["Sí", "No"] },
+    q: "La porta per on has d'entrar és la que et queda més a prop de l'aula?", opts: ["Sí", "No"] },
   { id: "q11", block: "pet", type: "choice", short: "T'han explicat per quina porta",
     q: "T'han explicat per què has d'entrar per aquesta porta?", opts: ["Sí", "No"] },
   { id: "q12", block: "val", type: "choice", short: "Satisfacció amb com s'escolta l'alumnat",
-    q: "Estàs satisfet amb la manera com l'institut té en compte l'opinió de l'alumnat?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
+    q: "Fins a quin punt estàs satisfet/a amb la manera com l'institut té en compte l'opinió de l'alumnat?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
   { id: "q13", block: "val", type: "textarea", short: "Una cosa que canviaries", optional: true,
     q: "Si poguessis canviar una sola cosa de com funciona l'institut, quina seria?",
     help: "Opcional. Si us plau, sense noms de persones." },
   { id: "q14", block: "val", type: "choice", short: "Proposta col·lectiva",
-    q: "T'interessaria signar o participar en una proposta col·lectiva?", opts: ["Sí", "No", "Potser"] },
+    q: "T'interessaria signar o participar en una proposta col·lectiva per canviar alguna d'aquestes coses?", opts: ["Sí", "No", "Potser"] },
   { id: "revisio", block: null, type: "review" }
 ];
+const D_STEPS = [
+  { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
+    help: "El nom només serveix per comprovar que responen delegats reals i un sol cop per grup. No es passarà a ningú." },
+  { id: "d1", block: "cd", type: "choice", short: "Reunions aquest curs",
+    q: "Quantes reunions del consell de delegats hi ha hagut aquest curs?", opts: ["Cap", "1", "2", "3 o més", "No ho sé"] },
+  { id: "d2", block: "cd", type: "choice", short: "Ordre del dia abans de la reunió",
+    q: "Us envien l'ordre del dia abans de les reunions?", opts: ["Sempre", "A vegades", "Mai", "No hi ha hagut reunions"] },
+  { id: "d3", block: "cd", type: "choice", short: "Acta de les reunions",
+    q: "Es fa acta de les reunions del consell de delegats?", opts: ["Sí, i la podem consultar", "Sí, però no la veiem", "No", "No ho sé"] },
+  { id: "d4", block: "prop", type: "choice", short: "Ha portat propostes",
+    q: "Aquest curs o l'anterior, has portat alguna proposta del teu grup a direcció o al consell de delegats?", opts: ["Sí", "No"],
+    help: "Si respons que sí, a la pregunta següent et demanarem quines." },
+  { id: "d5", block: "prop", type: "proposals", short: "Propostes", when: a => a.d4 === "Sí",
+    q: "Quines propostes vau portar i què en va sortir?",
+    help: "Fins a tres. Escriu el tema en poques paraules, sense noms de persones." },
+  { id: "d6", block: "val", type: "choice", short: "Us expliquen per què no",
+    q: "Quan us diuen que no a una proposta, us expliquen per què?", opts: ["Sempre", "A vegades", "Mai", "No ens han dit mai que no"] },
+  { id: "d7", block: "val", type: "choice", short: "Serveix per canviar coses",
+    q: "Fins a quin punt creus que el consell de delegats serveix per canviar coses?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
+  { id: "d8", block: "val", type: "textarea", short: "Què milloraries", optional: true,
+    q: "Què milloraria el funcionament del consell de delegats?",
+    help: "Opcional. Si us plau, sense noms de persones." },
+  { id: "revisio", block: null, type: "review" }
+];
+const STEPS = MODE === "delegats" ? D_STEPS : G_STEPS;
+const CARRECS = ["Delegat/da", "Sotsdelegat/da"];
+const P_MAX = 3;
+const P_AQUI = ["Al consell de delegats", "A direcció", "Al tutor o tutora"];
+const P_RES = ["Es va fer", "Van respondre, però no es va fer", "No hi va haver resposta", "Encara està pendent"];
+const P_CONST = ["Sí, per escrit", "Només de paraula"];
+const P_FIELDS = [["tema", "Tema"], ["quan", "Quan"], ["aqui", "A qui"], ["res", "Resultat"], ["const", "Constància escrita"]];
 const COURSES = ["3r ESO", "4t ESO", "1r Batxillerat", "2n Batxillerat"];
 const GROUPS = ["A", "B", "C", "D", "E"];
 const LETTERS = "abcdefghi";
 const MAX_TEXT = 600;
-const ALL_Q = STEPS.filter(s => s.id.startsWith("q"));
+const ALL_Q = STEPS.filter(s => /^[qd]\d+$/.test(s.id));
 
 /* Tres traços de bolígraf lleugerament diferents, perquè cap cercle surti igual */
 const CIRCLES = [
@@ -592,7 +636,7 @@ document.querySelectorAll("[data-goto-info]").forEach(b => b.addEventListener("c
 }));
 
 /* Exemple interactiu de la portada */
-const SAMPLE_OPTS = ["Majoria simple", "60%", "Dos terços", "75%"];
+const SAMPLE_OPTS = ["Més del 50%", "60%", "Dos terços", "75%"];
 let samplePick = 1;
 function renderSample() {
   $("#sample").innerHTML = SAMPLE_OPTS.map((o, i) =>
@@ -608,18 +652,27 @@ renderSample();
 /* ================= ENQUESTA ================= */
 function answerFor(step) {
   const a = state.answers;
-  if (step.type === "identity") return a.nom && a.curs ? `${a.nom.trim()} · ${a.curs}${a.grup ? " " + a.grup : ""}` : "";
-  if (step.id === "q2" && a.q2 === "Un altre") return a.q2_altre ? `Un altre: ${a.q2_altre.trim()}` : "Un altre";
+  if (step.type === "identity") return a.nom && a.curs ? `${a.nom.trim()} · ${a.curs}${a.grup ? " " + a.grup : ""}${a.carrec ? " · " + a.carrec : ""}` : "";
+  if (step.type === "proposals") {
+    const out = [];
+    for (let i = 1; i <= (a.pcount || 1); i++) if ((a[`p${i}_tema`] || "").trim()) out.push(`${a[`p${i}_tema`].trim()} (${a[`p${i}_res`] || "sense resultat"})`);
+    return out.join(" · ");
+  }
+  if (step.other && a[step.id] === step.other) return a[step.id + "_altre"] ? `${step.other}: ${a[step.id + "_altre"].trim()}` : step.other;
   return (a[step.id] || "").trim();
 }
 
 function isValid(step) {
   const a = state.answers;
   if (!step) return false;
-  if (step.type === "identity") return (a.nom || "").trim().split(/\s+/).filter(Boolean).length >= 2 && !!a.curs;
+  if (step.type === "identity") return (a.nom || "").trim().split(/\s+/).filter(Boolean).length >= 2 && !!a.curs && (MODE !== "delegats" || !!a.carrec);
+  if (step.type === "proposals") {
+    for (let i = 1; i <= (a.pcount || 1); i++) if (!(a[`p${i}_tema`] || "").trim() || !a[`p${i}_res`]) return false;
+    return true;
+  }
   if (step.type === "textarea") return true;
   if (step.type === "review") return state.consent;
-  if (step.id === "q2" && a.q2 === "Un altre") return !!(a.q2_altre || "").trim();
+  if (step.other && a[step.id] === step.other) return !!(a[step.id + "_altre"] || "").trim();
   return !!a[step.id];
 }
 
@@ -668,7 +721,11 @@ function renderStep() {
           ${GROUPS.map((g, i) => `<button type="button" class="choice" role="radio" aria-checked="${a.grup === g}" data-name="grup" data-value="${g}">
             <span class="letter">${g}${circleSvg(i)}</span></button>`).join("")}
         </div>
-      </div>`;
+      </div>
+      ${MODE === "delegats" ? `<div class="field">
+        <span class="flabel" id="carrec-l">Càrrec</span>
+        ${choiceList("carrec", CARRECS, a.carrec, "carrec-l", "compact")}
+      </div>` : ""}`;
   } else if (step.type === "choice") {
     body = `
       <div class="qhead">
@@ -679,8 +736,33 @@ function renderStep() {
       ${choiceList(step.id, step.opts, a[step.id], "q-title")}
       ${step.other ? `<div class="field other" id="other-wrap" ${a[step.id] === step.other ? "" : "hidden"}>
         <label class="flabel" for="altre">Quin percentatge?</label>
-        <input class="line-input" id="altre" type="text" maxlength="40" value="${esc(a.q2_altre || "")}">
+        <input class="line-input" id="altre" type="text" maxlength="40" value="${esc(a[step.id + "_altre"] || "")}">
       </div>` : ""}`;
+  } else if (step.type === "proposals") {
+    const n = a.pcount || 1;
+    const cards = Array.from({ length: n }, (_, k) => {
+      const i = k + 1;
+      return `<fieldset class="prop"><legend>Proposta ${i}</legend>
+        <div class="field"><label class="flabel" for="p${i}_tema">Tema</label>
+          <input class="line-input" id="p${i}_tema" data-key="p${i}_tema" type="text" maxlength="120" placeholder="Per exemple, canviar la porta d'entrada" value="${esc(a[`p${i}_tema`] || "")}"></div>
+        <div class="field"><label class="flabel" for="p${i}_quan">Quan <span class="opt">(aproximadament)</span></label>
+          <input class="line-input" id="p${i}_quan" data-key="p${i}_quan" type="text" maxlength="40" placeholder="Per exemple, octubre del 2025" value="${esc(a[`p${i}_quan`] || "")}"></div>
+        <div class="field"><span class="flabel" id="p${i}_aqui-l">A qui la vau portar</span>${choiceList(`p${i}_aqui`, P_AQUI, a[`p${i}_aqui`], `p${i}_aqui-l`, "compact")}</div>
+        <div class="field"><span class="flabel" id="p${i}_res-l">Què en va sortir</span>${choiceList(`p${i}_res`, P_RES, a[`p${i}_res`], `p${i}_res-l`, "compact")}</div>
+        <div class="field"><span class="flabel" id="p${i}_const-l">En queda constància escrita?</span>${choiceList(`p${i}_const`, P_CONST, a[`p${i}_const`], `p${i}_const-l`, "compact")}</div>
+      </fieldset>`;
+    }).join("");
+    body = `
+      <div class="qhead">
+        <p class="qblock">${BLOCKS[step.block]}</p>
+        <h1 class="qtitle">${esc(step.q)}</h1>
+        <p class="qhelp">${esc(step.help)}</p>
+      </div>
+      ${cards}
+      <div class="prop-actions">
+        ${n < P_MAX ? `<button type="button" class="addprop" id="add-prop">+ Afegir una altra proposta</button>` : ""}
+        ${n > 1 ? `<button type="button" class="addprop remove" id="remove-prop">Treure l'última</button>` : ""}
+      </div>`;
   } else if (step.type === "textarea") {
     const v = a[step.id] || "";
     body = `
@@ -723,7 +805,7 @@ function renderStep() {
   $("#stage").innerHTML = body + navHtml(step);
   updateChrome(step);
   bindStep(step);
-  const focusEl = $("#stage").querySelector("#nom, #txt, .choice[aria-checked='true'], .choice, #consent");
+  const focusEl = $("#stage").querySelector("#nom, #p1_tema, #txt, .choice[aria-checked='true'], .choice, #consent");
   if (focusEl) focusEl.focus({ preventScroll: true });
 }
 
@@ -744,10 +826,25 @@ function refreshNext() {
 function bindStep(step) {
   const stage = $("#stage");
   stage.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => choose(b.dataset.name, b.dataset.value)));
+  stage.querySelectorAll("[data-key]").forEach(inp => inp.addEventListener("input", e => { state.answers[e.target.dataset.key] = e.target.value; refreshNext(); }));
+  const addP = stage.querySelector("#add-prop");
+  if (addP) addP.addEventListener("click", () => {
+    state.answers.pcount = (state.answers.pcount || 1) + 1;
+    renderStep();
+    const f = document.getElementById(`p${state.answers.pcount}_tema`);
+    if (f) { f.focus(); f.scrollIntoView({ block: "center", behavior: reduceMotion() ? "auto" : "smooth" }); }
+  });
+  const remP = stage.querySelector("#remove-prop");
+  if (remP) remP.addEventListener("click", () => {
+    const n = state.answers.pcount || 1;
+    P_FIELDS.forEach(([k]) => delete state.answers[`p${n}_${k}`]);
+    state.answers.pcount = n - 1;
+    renderStep();
+  });
   const nom = stage.querySelector("#nom");
   if (nom) nom.addEventListener("input", e => { state.answers.nom = e.target.value; refreshNext(); });
   const altre = stage.querySelector("#altre");
-  if (altre) altre.addEventListener("input", e => { state.answers.q2_altre = e.target.value; refreshNext(); });
+  if (altre) altre.addEventListener("input", e => { state.answers[step.id + "_altre"] = e.target.value; refreshNext(); });
   const txt = stage.querySelector("#txt");
   if (txt) txt.addEventListener("input", e => {
     state.answers[step.id] = e.target.value;
@@ -829,9 +926,19 @@ function payload() {
     "ID": submissionId,
     "Nom i cognoms": (a.nom || "").trim(),
     "Curs": a.curs || "",
-    "Grup": a.grup || ""
+    "Grup": a.grup || "",
+    "_full": SHEET_TAB
   };
+  if (MODE === "delegats") out["Càrrec"] = a.carrec || "";
   ALL_Q.forEach(s => {
+    if (s.type === "proposals") {
+      const on = shown.includes(s);
+      for (let i = 1; i <= P_MAX; i++) {
+        const used = on && i <= (a.pcount || 1);
+        P_FIELDS.forEach(([k, label]) => { out[`P${i} · ${label}`] = !on ? "No aplica" : (used ? String(a[`p${i}_${k}`] || "").trim() : ""); });
+      }
+      return;
+    }
     out[`${s.id.slice(1).padStart(2, "0")}. ${s.short}`] = shown.includes(s) ? (answerFor(s) || "En blanc") : "No aplica";
   });
   return out;
@@ -861,7 +968,7 @@ async function send() {
       await fetch(CONFIG.ENDPOINT, { method: "POST", body, mode: "no-cors" });
       ok = true;
     }
-    storeSet("quorum-enviada", "1");
+    storeSet(SENT_KEY, "1");
     finish("sent");
   } catch (e) {
     err.innerHTML = `<p class="alert">No s'ha pogut enviar la resposta. Comprova la connexió i torna-ho a provar. Les respostes no s'han perdut.</p>`;
@@ -879,7 +986,8 @@ function finish(mode) {
       <div class="cta-row"><button class="btn secondary" type="button" id="restart">Tornar a la portada</button></div>` : `
       <p class="kicker">Resposta enviada</p>
       <h1 class="display">${underline("Gràcies")}.</h1>
-      <p class="lede">La teva resposta ha arribat. Com més alumnes responguin, més pes tindran els resultats. Si tens companys de 3r d'ESO a 2n de batxillerat que encara no l'han feta, passa'ls l'enllaç.</p>
+      <p class="lede">${MODE === "delegats" ? "La teva resposta ha arribat. Si l'altre delegat o delegada del teu grup encara no l'ha feta, passa-li l'enllaç." : "La teva resposta ha arribat. Com més alumnes responguin, més pes tindran els resultats. Si tens companys de 3r d'ESO a 2n de batxillerat que encara no l'han feta, passa'ls l'enllaç."}</p>
+      ${MODE === "general" ? `<p class="crosslink">Ets delegat o delegada? Respon també el <a href="delegats/">mòdul per a delegats</a>.</p>` : ""}
       <div class="cta-row">
         <button class="btn" type="button" id="copy">Copiar l'enllaç <span class="arrow" aria-hidden="true">→</span></button>
         <span class="meta" id="copy-msg" role="status"></span>
@@ -933,8 +1041,32 @@ document.addEventListener("keydown", e => {
 $("#start").addEventListener("click", () => { show("survey"); renderStep(); });
 $("#exit").addEventListener("click", () => show("home"));
 
+function applyDelegatsHome() {
+  document.title = "Quòrum · Delegats";
+  document.querySelector(".kicker").textContent = "Institut Vil·la Romana · Mòdul per a delegats";
+  const svg = document.querySelector("#hero-title .underlined svg").outerHTML;
+  $("#hero-title").innerHTML = `Les propostes que porteu, <span class="underlined">on van a parar?${svg}</span>`;
+  document.querySelector(".hero .lede").textContent = "Un mòdul curt per a delegats i sotsdelegats de 3r d'ESO a 2n de batxillerat. Volem saber com funciona el consell de delegats i què ha passat amb les propostes que heu portat.";
+  document.querySelector(".cta-row .meta").innerHTML = `<span id="meta-count">8</span> preguntes · 5 minuts · només per a delegats i sotsdelegats`;
+  document.querySelector(".sample-meta").textContent = "Pregunta 06 de 08 · Valoració";
+  $("#sample-q").textContent = "Quan us diuen que no a una proposta, us expliquen per què?";
+  SAMPLE_OPTS.splice(0, SAMPLE_OPTS.length, "Sempre", "A vegades", "Mai");
+  samplePick = 1; renderSample();
+  document.querySelector(".topic-grid").innerHTML = `
+    <div class="topic"><span class="count">3</span><span class="name">Consell de delegats</span><span class="desc">Quantes reunions hi ha hagut, si hi ha ordre del dia i si es fa acta.</span></div>
+    <div class="topic"><span class="count">2</span><span class="name">Propostes</span><span class="desc">Quines propostes heu portat, a qui i què en va sortir.</span></div>
+    <div class="topic"><span class="count">3</span><span class="name">Valoració</span><span class="desc">Si us expliquen les respostes i si el consell serveix per canviar coses.</span></div>`;
+  $("#crosslink").innerHTML = `Aquest mòdul és per a delegats. L'<a href="../">enquesta general</a> és per a tot l'alumnat de 3r d'ESO a 2n de batxillerat.`;
+  INFO.rules.html = INFO.rules.html.replace("Respon només si ets alumne o alumna del centre, de 3r d'ESO a 2n de batxillerat.", "Respon només si ets delegat, delegada, sotsdelegat o sotsdelegada d'un grup de 3r d'ESO a 2n de batxillerat.").replace("Una resposta per persona.", "Una resposta per persona. Al mateix grup hi pot respondre el delegat i el sotsdelegat.");
+  document.querySelector('[data-info="rules"]').innerHTML = INFO.rules.html;
+  document.querySelector("#rules .sum").textContent = "Només per a delegats i sotsdelegats de 3r d'ESO a 2n de batxillerat, una resposta per persona. Sense noms de professors ni d'altres alumnes.";
+  $("#drawer-body").innerHTML = Object.values(INFO).map(i =>
+    `<section class="drawer-section"><h2>${esc(i.title)}</h2><div class="more open"><div><div class="inner">${i.html}</div></div></div></section>`).join("");
+}
+
 function start(data) {
-  if (storeGet("quorum-enviada")) $("#already").hidden = false;
+  if (MODE === "delegats") applyDelegatsHome();
+  if (storeGet(SENT_KEY)) $("#already").hidden = false;
   $("#meta-count").textContent = ALL_Q.length;
   if (data && data.answers) {
     state = Object.assign(state, data);

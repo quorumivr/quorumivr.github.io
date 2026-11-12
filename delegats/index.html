@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quòrum</title>
+<meta name="description" content="Enquesta feta per alumnes de l'Institut Vil·la Romana sobre les vagues, el consell escolar i què passa amb les propostes de l'alumnat. No és una iniciativa oficial del centre.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23121212'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='Arial' font-weight='700' font-size='40' fill='%23ffffff'%3Eq%3C/text%3E%3Cpath d='M28 8 L38 18' stroke='%236f88ff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Paper blanc i tinta negra. El blau és el bolígraf de l'alumne: només apareix quan algú marca, subratlla o avança. */
+  --paper: #ffffff;
+  --ink: #121212;
+  --soft: #555555;
+  --faint: #767676;
+  --rule: #e6e6e6;
+  --hover: #f6f6f4;
+  --pen: #2342c8;
+  --danger: #b3261e;
+  --sans: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111113;
+    --ink: #f0f0f0;
+    --soft: #b0b0b4;
+    --faint: #8e8e93;
+    --rule: #2a2a2e;
+    --hover: #1a1a1d;
+    --pen: #8ea2ff;
+    --danger: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111113;
+  --ink: #f0f0f0;
+  --soft: #b0b0b4;
+  --faint: #8e8e93;
+  --rule: #2a2a2e;
+  --hover: #1a1a1d;
+  --pen: #8ea2ff;
+  --danger: #ff8a80;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2.5px solid var(--pen); outline-offset: 3px; border-radius: 3px; }
+[hidden] { display: none !important; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.container { max-width: 1120px; margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px); }
+
+/* ---------- Capçalera ---------- */
+.masthead {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px 28px; flex-wrap: wrap;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.wordmark {
+  font-weight: 800; font-size: 22px; letter-spacing: -0.025em;
+  text-decoration: none; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer;
+}
+.wordmark .acc { color: var(--pen); }
+.disclaimer { font-size: 13px; color: var(--faint); }
+.mastnav { display: flex; gap: 22px; font-size: 15px; font-weight: 500; }
+.mastnav button {
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-size: 0% 1.5px; background-repeat: no-repeat; background-position: 0 100%;
+  transition: background-size 260ms var(--ease);
+}
+.mastnav button:hover { background-size: 100% 1.5px; }
+
+/* ---------- Portada ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 56px 48px;
+  align-items: center;
+  padding: clamp(56px, 9vw, 96px) 0 clamp(64px, 9vw, 104px);
+}
+@media (max-width: 900px) { .hero { grid-template-columns: 1fr; } }
+.hero-copy { display: flex; flex-direction: column; gap: 28px; }
+.kicker { margin: 0; font-size: 14px; font-weight: 600; color: var(--faint); }
+h1, h2, h3 { text-wrap: balance; }
+.display {
+  margin: 0;
+  font-size: clamp(42px, 6.4vw, 72px);
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.underlined { position: relative; white-space: nowrap; }
+.underlined svg { position: absolute; left: -2%; bottom: -0.16em; width: 104%; height: 0.22em; overflow: visible; }
+.lede { margin: 0; max-width: 34em; font-family: var(--serif); font-size: clamp(19px, 2vw, 22px); line-height: 1.45; color: var(--soft); }
+.cta-row { display: flex; align-items: center; gap: 14px 24px; flex-wrap: wrap; }
+.meta { font-size: 15px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  border: 0; border-radius: 4px;
+  padding: 15px 24px; min-height: 48px;
+  font-weight: 700; font-size: 16px; cursor: pointer;
+  background: var(--ink); color: var(--paper);
+  transition: transform 140ms var(--ease), opacity 160ms ease;
+}
+.btn .arrow { display: inline-block; transition: transform 200ms var(--ease); }
+.btn:hover .arrow { transform: translateX(4px); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn:disabled .arrow { transform: none; }
+.btn.secondary { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.textbtn {
+  background: none; border: 0; padding: 10px 2px; cursor: pointer;
+  font-weight: 600; font-size: 16px; color: var(--faint);
+}
+.textbtn:hover { color: var(--ink); }
+
+.already { margin: 0; font-size: 14px; color: var(--soft); border-left: 2px solid var(--pen); padding-left: 12px; }
+
+/* Exemple de pregunta a la portada */
+.sample {
+  margin: 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 30px 28px 18px;
+  background: var(--paper);
+  box-shadow: 0 30px 60px -42px rgba(0, 0, 0, 0.35);
+  transform: rotate(-1.2deg);
+  transition: transform 400ms var(--ease);
+}
+.sample:hover { transform: rotate(0deg); }
+.sample-meta { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; }
+.sample-q { margin: 0 0 18px; font-size: 21px; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; }
+.sample-cap { margin: 14px 0 0; font-size: 13px; color: var(--faint); }
+
+/* ---------- Opcions (compartit) ---------- */
+.choices { display: flex; flex-direction: column; }
+.choice {
+  display: flex; gap: 18px; align-items: baseline;
+  width: 100%; text-align: left;
+  background: none; border: 0; border-top: 1px solid var(--rule);
+  padding: 18px 10px; min-height: 58px;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.choice:last-child { border-bottom: 1px solid var(--rule); }
+.choice:hover { background: var(--hover); }
+.choice .letter {
+  position: relative; flex: none; width: 26px;
+  font-family: var(--serif); font-style: italic; font-size: 21px; line-height: 1;
+}
+.choice .letter svg {
+  position: absolute; left: -15px; top: -12px; width: 54px; height: 44px; overflow: visible; pointer-events: none;
+}
+.choice .letter path {
+  fill: none; stroke: var(--pen); stroke-width: 2.4; stroke-linecap: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+}
+.choice[aria-checked="true"] .letter path { stroke-dashoffset: 0; transition: stroke-dashoffset 420ms var(--ease); }
+.choice .label { font-size: 19px; transition: color 160ms ease; }
+.choice[aria-checked="true"] .label { color: var(--pen); font-weight: 600; }
+.choices.compact .choice { padding: 12px 6px; min-height: 48px; }
+.choices.compact .choice .label { font-size: 17px; }
+.choices.compact .choice .letter { font-size: 19px; }
+
+/* ---------- Seccions informatives ---------- */
+.info {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  padding: 56px 0;
+  border-top: 1.5px solid var(--ink);
+}
+@media (max-width: 860px) { .info { grid-template-columns: 1fr; gap: 0; padding: 24px 0; } }
+.info-item { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 24px; }
+@media (max-width: 860px) { .info-item { padding: 28px 0; border-bottom: 1px solid var(--rule); } .info-item:last-child { border-bottom: 0; } }
+.num { font-size: 13px; font-weight: 700; color: var(--pen); font-variant-numeric: tabular-nums; }
+.info-item h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.015em; }
+.info-item .sum { margin: 0; font-family: var(--serif); font-size: 18px; line-height: 1.5; color: var(--soft); }
+.toggle {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 0; padding: 8px 0; cursor: pointer;
+  font-weight: 600; font-size: 15px;
+  border-bottom: 1.5px solid var(--ink);
+}
+.toggle .plus { display: inline-block; transition: transform 260ms var(--ease); font-weight: 400; }
+.toggle[aria-expanded="true"] .plus { transform: rotate(45deg); }
+.more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 360ms var(--ease); }
+.more.open { grid-template-rows: 1fr; }
+.more > div { overflow: hidden; }
+.more .inner { padding-top: 8px; display: flex; flex-direction: column; gap: 12px; font-family: var(--serif); font-size: 17px; line-height: 1.55; color: var(--soft); }
+.more p { margin: 0; }
+.more ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.more h3 { margin: 6px 0 0; font-family: var(--sans); font-size: 14px; font-weight: 700; color: var(--ink); }
+.more strong { color: var(--ink); font-weight: 500; }
+
+/* Què preguntem */
+.topics { padding: 56px 0 88px; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 28px; }
+.topics h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--faint); }
+.topic-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+@media (max-width: 860px) { .topic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .topic-grid { grid-template-columns: 1fr; } }
+.topic { display: flex; flex-direction: column; gap: 6px; }
+.topic .count { font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.topic .name { font-weight: 700; }
+.topic .desc { font-size: 15px; color: var(--soft); line-height: 1.45; }
+
+.footer {
+  display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  padding: 26px 0 40px; border-top: 1px solid var(--rule);
+  font-size: 13px; color: var(--faint);
+}
+
+/* ---------- Enquesta ---------- */
+.sbar {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--paper);
+}
+.sbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 18px; padding-bottom: 18px; }
+@media (max-width: 480px) { .sbar-right .blk { display: none; } .sbar-right { gap: 14px; } }
+.sbar-right { display: flex; align-items: center; gap: 18px; font-size: 14px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.sbar-right strong { color: var(--ink); }
+.sbar-right button { background: none; border: 0; padding: 6px 0; cursor: pointer; color: var(--faint); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+.sbar-right button:hover { color: var(--ink); }
+.track { height: 3px; background: var(--rule); }
+.track > div { height: 3px; width: 0; background: var(--pen); transition: width 420ms var(--ease); }
+
+.qwrap { max-width: 720px; margin: 0 auto; padding: clamp(40px, 7vw, 72px) clamp(18px, 4vw, 40px) 56px; }
+.stage { display: flex; flex-direction: column; gap: 32px; transition: opacity 200ms ease, transform 240ms var(--ease); }
+.stage.out { opacity: 0; transform: translateY(-8px); }
+.stage.in { opacity: 0; transform: translateY(10px); transition: none; }
+.qhead { display: flex; flex-direction: column; gap: 12px; }
+.qblock { margin: 0; font-size: 14px; font-weight: 700; color: var(--pen); }
+.qtitle { margin: 0; font-size: clamp(28px, 4.4vw, 42px); line-height: 1.12; font-weight: 800; letter-spacing: -0.03em; }
+.qhelp { margin: 0; font-family: var(--serif); font-size: 18px; color: var(--soft); max-width: 36em; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.flabel { font-size: 14px; font-weight: 700; }
+.flabel .opt { font-weight: 400; color: var(--faint); }
+.line-input {
+  width: 100%; border: 0; border-bottom: 1.5px solid var(--ink);
+  background: transparent; padding: 10px 2px; font-size: 22px; border-radius: 0;
+}
+.line-input:focus { outline: none; border-bottom-color: var(--pen); box-shadow: 0 1.5px 0 var(--pen); }
+.groups { display: flex; gap: 6px; flex-wrap: wrap; }
+.groups .choice { width: 56px; min-height: 52px; justify-content: center; border: 1px solid var(--rule); border-radius: 4px; padding: 0; align-items: center; }
+.groups .choice:last-child { border-bottom: 1px solid var(--rule); }
+.groups .choice .letter { width: auto; font-style: normal; font-family: var(--sans); font-size: 18px; font-weight: 600; }
+.groups .choice .letter svg { left: -17px; top: -13px; }
+.other { margin-top: 4px; }
+.lined {
+  width: 100%; min-height: 168px; resize: vertical;
+  border: 0; border-radius: 0; padding: 4px 2px;
+  font-family: var(--serif); font-size: 19px; line-height: 34px;
+  background-color: transparent;
+  background-image: linear-gradient(transparent 33px, var(--rule) 33px);
+  background-size: 100% 34px;
+  background-attachment: local;
+}
+.lined:focus { outline: none; background-image: linear-gradient(transparent 33px, var(--pen) 33px); }
+.prop { border: 0; margin: 0; padding: 22px 0 6px; border-top: 1.5px solid var(--ink); display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.prop legend { padding: 0 10px 0 0; font-size: 14px; font-weight: 700; color: var(--pen); }
+.prop .line-input { font-size: 19px; }
+.prop-actions { display: flex; gap: 10px 24px; flex-wrap: wrap; }
+.addprop { background: none; border: 0; padding: 8px 0; cursor: pointer; font-weight: 600; font-size: 15px; border-bottom: 1.5px solid var(--ink); }
+.addprop.remove { color: var(--faint); border-bottom-color: var(--rule); }
+#crosslink { padding: 0 0 28px; }
+.crosslink { margin: 0; font-size: 15px; color: var(--soft); }
+.crosslink a { font-weight: 600; color: var(--ink); text-underline-offset: 3px; }
+.counter { font-size: 13px; color: var(--faint); text-align: right; font-variant-numeric: tabular-nums; }
+
+.qnav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.keyhint { font-size: 13px; color: var(--faint); }
+@media (max-width: 600px) { .keyhint { display: none; } }
+
+/* Revisió */
+.review { list-style: none; margin: 0; padding: 0; }
+.review li {
+  display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto; gap: 12px; align-items: baseline;
+  padding: 14px 0; border-top: 1px solid var(--rule);
+}
+.review li:last-child { border-bottom: 1px solid var(--rule); }
+.review .n { font-size: 13px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
+.review .rq { display: block; font-size: 14px; color: var(--faint); }
+.review .ra { display: block; font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.review .ra.blank { color: var(--faint); font-weight: 400; font-style: italic; font-family: var(--serif); }
+.review .edit { background: none; border: 0; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; padding: 6px 2px; }
+.review .edit:hover { color: var(--pen); }
+.consent { display: flex; gap: 14px; align-items: flex-start; font-size: 16px; line-height: 1.5; cursor: pointer; }
+.consent input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--pen); cursor: pointer; }
+.inline-link { background: none; border: 0; padding: 0; cursor: pointer; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.note { margin: 0; font-size: 14px; color: var(--soft); border-left: 2px solid var(--pen); padding-left: 12px; }
+.alert { margin: 0; font-size: 15px; color: var(--danger); border-left: 2px solid var(--danger); padding-left: 12px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Final */
+.done { max-width: 720px; margin: 0 auto; padding: clamp(64px, 12vw, 128px) clamp(18px, 4vw, 40px); display: flex; flex-direction: column; gap: 26px; }
+
+/* Panell d'informació dins l'enquesta */
+dialog.drawer {
+  border: 0; padding: 0; margin: 0 0 0 auto;
+  width: min(480px, 100%); height: 100%; max-height: 100%;
+  background: var(--paper); color: var(--ink);
+  box-shadow: -24px 0 60px -30px rgba(0, 0, 0, 0.4);
+}
+dialog.drawer[open] { animation: drawer-in 300ms var(--ease); }
+@keyframes drawer-in { from { transform: translateX(32px); opacity: 0; } to { transform: none; opacity: 1; } }
+dialog.drawer::backdrop { background: rgba(0, 0, 0, 0.35); }
+.drawer-inner { padding: 26px clamp(18px, 4vw, 32px) 48px; display: flex; flex-direction: column; gap: 22px; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.drawer-close { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; font-size: 22px; line-height: 1; }
+.drawer-section { display: flex; flex-direction: column; gap: 10px; padding-bottom: 22px; border-bottom: 1px solid var(--rule); }
+.drawer-section:last-child { border-bottom: 0; }
+.drawer-section h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+/* Entrada de la portada */
+.reveal { animation: rise 700ms var(--ease) both; }
+.d1 { animation-delay: 60ms; } .d2 { animation-delay: 160ms; } .d3 { animation-delay: 260ms; } .d4 { animation-delay: 360ms; } .d5 { animation-delay: 480ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.draw path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 900ms 650ms var(--ease) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .draw path, .choice .letter path { stroke-dashoffset: 0 !important; }
+  .choice[aria-checked="false"] .letter path { stroke-dashoffset: 1 !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<div id="home">
+  <div class="container">
+    <header class="masthead">
+      <div class="brand">
+        <span class="wordmark" aria-label="Quòrum">qu<span class="acc">ò</span>rum</span>
+        <span class="disclaimer">Iniciativa d'alumnes. No és una pàgina oficial del centre.</span>
+      </div>
+      <nav class="mastnav" aria-label="Informació">
+        <button type="button" data-goto-info="why">Per què</button>
+        <button type="button" data-goto-info="rules">Normes</button>
+        <button type="button" data-goto-info="data">Les dades</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="kicker reveal d1">Institut Vil·la Romana · Curs 2026-27</p>
+          <h1 class="display reveal d2" id="hero-title">Quan l'alumnat proposa alguna cosa, <span class="underlined">què passa?<svg class="draw" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 10 C 60 4, 120 12, 180 7 S 260 5, 297 9" fill="none" stroke="var(--pen)" stroke-width="3" stroke-linecap="round"/></svg></span></h1>
+          <p class="lede reveal d3">Una enquesta curta, feta per alumnes, sobre les vagues, el consell escolar i què passa amb les propostes que fem. Amb les respostes prepararem propostes concretes per als canals del centre.</p>
+          <div class="cta-row reveal d4">
+            <button class="btn" type="button" id="start">Respondre l'enquesta <span class="arrow" aria-hidden="true">→</span></button>
+            <span class="meta"><span id="meta-count">14</span> preguntes · 4 minuts · de 3r d'ESO a 2n de batxillerat</span>
+          </div>
+          <p class="already" id="already" hidden>Des d'aquest navegador ja s'ha enviat una resposta. Si és teva, no cal que tornis a respondre.</p>
+        </div>
+
+        <figure class="reveal d5" style="margin:0">
+          <div class="sample">
+            <p class="sample-meta">Pregunta 02 de 14 · Vaga</p>
+            <p class="sample-q" id="sample-q">Quin percentatge et semblaria just per autoritzar una vaga?</p>
+            <div class="choices compact" role="radiogroup" aria-labelledby="sample-q" id="sample"></div>
+          </div>
+          <figcaption class="sample-cap">Exemple. Prova de marcar una resposta.</figcaption>
+        </figure>
+      </section>
+
+      <section class="info" aria-label="Informació sobre l'enquesta">
+        <article class="info-item" id="why">
+          <span class="num">01</span>
+          <h2>Per què ho fem</h2>
+          <p class="sum">Hi ha canals per participar, però sovint sembla que el que s'hi proposa no arriba enlloc. Volem saber si és una impressió compartida.</p>
+          <button class="toggle" type="button" aria-expanded="false" aria-controls="more-why">Llegir-ne més <span class="plus" aria-hidden="true">+</span></button>
+          <div class="more" id="more-why"><div><div class="inner" data-info="why"></div></div></div>
+        </article>
+        <article class="info-item" id="rules">
+          <span class="num">02</span>
+          <h2>Normes</h2>
+          <p class="sum">Una resposta per persona, d'alumnes de 3r d'ESO a 2n de batxillerat. Sense noms de professors ni d'altres alumnes.</p>
+          <button class="toggle" type="button" aria-expanded="false" aria-controls="more-rules">Llegir-ne més <span class="plus" aria-hidden="true">+</span></button>
+          <div class="more" id="more-rules"><div><div class="inner" data-info="rules"></div></div></div>
+        </article>
+        <article class="info-item" id="data">
+          <span class="num">03</span>
+          <h2>Què farem amb les respostes</h2>
+          <p class="sum">Només publicarem percentatges. El teu nom no arribarà a direcció ni al professorat.</p>
+          <button class="toggle" type="button" aria-expanded="false" aria-controls="more-data">Llegir-ne més <span class="plus" aria-hidden="true">+</span></button>
+          <div class="more" id="more-data"><div><div class="inner" data-info="data"></div></div></div>
+        </article>
+      </section>
+
+      <section class="topics" aria-labelledby="topics-title">
+        <h2 id="topics-title">Què preguntem</h2>
+        <div class="topic-grid">
+          <div class="topic"><span class="count">3</span><span class="name">Vaga</span><span class="desc">El percentatge que demanen les normes i si et sembla just.</span></div>
+          <div class="topic"><span class="count">4</span><span class="name">Consell escolar</span><span class="desc">Si et van informar de les eleccions i com vas poder votar.</span></div>
+          <div class="topic"><span class="count">4</span><span class="name">Peticions</span><span class="desc">Què passa quan es demana alguna cosa, i les portes d'entrada.</span></div>
+          <div class="topic"><span class="count">3</span><span class="name">Valoració</span><span class="desc">Si l'opinió de l'alumnat compta, i què canviaries.</span></div>
+        </div>
+      </section>
+    </main>
+
+    <p class="crosslink" id="crosslink">Ets delegat o delegada? Hi ha un <a href="delegats/">mòdul per a delegats</a> amb preguntes sobre el consell de delegats.</p>
+    <footer class="footer">
+      <span>Quòrum · Enquesta de l'alumnat · Curs 2026-27</span>
+      <span>Iniciativa d'alumnes. No és una pàgina oficial del centre.</span>
+    </footer>
+  </div>
+</div>
+
+<!-- ============ ENQUESTA ============ -->
+<div id="survey" hidden>
+  <div class="sbar">
+    <div class="container sbar-inner">
+      <button class="wordmark" type="button" id="exit" aria-label="Tornar a la portada">qu<span class="acc">ò</span>rum</button>
+      <div class="sbar-right">
+        <span id="counter" aria-live="polite"></span>
+        <button type="button" id="open-info">Normes i dades</button>
+      </div>
+    </div>
+    <div class="track" aria-hidden="true"><div id="bar"></div></div>
+  </div>
+  <main class="qwrap">
+    <div class="stage" id="stage"></div>
+  </main>
+</div>
+
+<!-- ============ FINAL ============ -->
+<div id="done" hidden>
+  <div class="container">
+    <header class="masthead">
+      <div class="brand"><span class="wordmark">qu<span class="acc">ò</span>rum</span></div>
+    </header>
+  </div>
+  <main class="done" id="done-body"></main>
+</div>
+
+<dialog class="drawer" id="drawer" aria-labelledby="drawer-title">
+  <div class="drawer-inner">
+    <div class="drawer-head">
+      <span class="wordmark" id="drawer-title">Normes i dades</span>
+      <button class="drawer-close" type="button" id="drawer-close" aria-label="Tancar">×</button>
+    </div>
+    <div id="drawer-body"></div>
+  </div>
+</dialog>
+
+<script>
+/* ================= CONFIGURACIÓ =================
+   ENDPOINT: l'adreça de l'aplicació web d'Apps Script (acaba en /exec).
+   Mentre hi hagi el text de mostra, la pàgina funciona en mode de prova i no envia res.
+*/
+const CONFIG = {
+  ENDPOINT: "https://script.google.com/macros/s/AKfycbyezcep8Yp9rdW5sv9NeOd-NDxtjZi7nzlUHPfadQ3XpIdyctwxkH6pDgXiNrwncXa5/exec",
+  CONTACT: "recullalumnativr@proton.me",
+  DELETE_BY: "el final del curs 2026-27"
+};
+const DEMO = !CONFIG.ENDPOINT.startsWith("https://script.google.com/");
+const CONTACT_TEXT = CONFIG.CONTACT;
+const MODE = (new URLSearchParams(location.search).get("mode") === "delegats" || /\/delegats(\/|\/index\.html)?$/.test(location.pathname)) ? "delegats" : "general";
+const SHEET_TAB = MODE === "delegats" ? "Delegats" : "Respostes";
+const SENT_KEY = "quorum-enviada-" + MODE;
+
+/* ================= TEXTOS D'INFORMACIÓ ================= */
+const INFO = {
+  why: { title: "Per què ho fem", html: `
+    <p>L'alumnat té canals per participar: els delegats, el consell de delegats i el consell escolar. Sovint tenim la sensació que el que s'hi proposa no arriba enlloc.</p>
+    <p>Volem saber si és una percepció compartida o només d'uns quants, i tenir-ho amb dades en lloc d'impressions.</p>
+    <p>Amb els resultats prepararem propostes concretes, per exemple sobre el percentatge que es demana per fer vaga o sobre com s'informa de les eleccions al consell escolar, i les presentarem pels canals oficials del centre.</p>
+    <p>No és una campanya contra ningú. Les preguntes parlen de normes i de procediments, no de persones.</p>` },
+  rules: { title: "Normes", html: `
+    <ul>
+      <li>Respon només si ets alumne o alumna del centre, de 3r d'ESO a 2n de batxillerat.</li>
+      <li>Una resposta per persona. Si n'hi ha de duplicades, només es compta la primera.</li>
+      <li>No escriguis noms de professors, de personal del centre ni d'altres alumnes. Si n'apareixen, s'esborren.</li>
+      <li>Les respostes amb insults o fetes de broma es descarten.</li>
+      <li>La pregunta oberta és opcional.</li>
+    </ul>` },
+  data: { title: "Què farem amb les respostes", html: `
+    <h3>Què farem</h3>
+    <ul>
+      <li>Comptar les respostes i publicar-ne els percentatges.</li>
+      <li>Separar els resultats per curs només quan n'hi hagi prou perquè ningú sigui identificable.</li>
+      <li>Citar fragments de la pregunta oberta sense nom ni cap detall que permeti saber qui ho ha escrit.</li>
+    </ul>
+    <h3>Què no farem</h3>
+    <ul>
+      <li>Passar el teu nom a direcció, al professorat o a ningú altre.</li>
+      <li>Publicar respostes individuals.</li>
+      <li>Fer servir les dades per a res que no sigui aquesta enquesta.</li>
+    </ul>
+    <h3>Per què demanem el nom</h3>
+    <p>Només per comprovar que responen alumnes reals i que cadascú respon un sol cop. Així ningú podrà dir que els resultats són inventats.</p>
+    <h3>Esborrar la teva resposta</h3>
+    <p>Pots demanar que s'esborri escrivint a <strong>${CONTACT_TEXT}</strong>. Totes les dades s'eliminaran a ${CONFIG.DELETE_BY}.</p>` }
+};
+
+/* ================= PREGUNTES ================= */
+const BLOCKS = { tu: "Abans de començar", vaga: "Vaga", ce: "Consell escolar", pet: "Peticions i comunicació", val: "Valoració", cd: "Consell de delegats", prop: "Propostes" };
+const G_STEPS = [
+  { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
+    help: "El nom només serveix per comprovar que responen alumnes reals i un sol cop. No es passarà a ningú." },
+  { id: "q1", block: "vaga", type: "choice", short: "Sabies que cal un 75%",
+    q: "Sabies que les normes de l'institut demanen que el 75% de la classe estigui a favor de fer vaga perquè l'autoritzin?", opts: ["Sí", "No"] },
+  { id: "q2", block: "vaga", type: "choice", short: "Percentatge que et sembla just", other: "Un altre percentatge",
+    q: "Quin percentatge et semblaria just per autoritzar una vaga?", opts: ["Més del 50% (majoria simple)", "60%", "Dos terços (67%)", "75%", "Un altre percentatge"] },
+  { id: "q3", block: "vaga", type: "choice", short: "No has pogut fer vaga pel percentatge",
+    q: "Alguna vegada has volgut fer vaga i no has pogut perquè la classe no arribava al percentatge?", opts: ["Sí", "No", "No ho sé"] },
+  { id: "q4", block: "ce", type: "choice", short: "Coneixes els representants",
+    q: "Saps qui són els representants de l'alumnat al consell escolar?", opts: ["Sí", "No"] },
+  { id: "q5", block: "ce", type: "choice", short: "Et van dir que podies presentar-te",
+    q: "A les últimes eleccions al consell escolar, et van dir que t'hi podies presentar?", opts: ["Sí", "No", "No ho recordo"] },
+  { id: "q6", block: "ce", type: "choice", short: "Com vas conèixer els candidats",
+    q: "Com vas conèixer els candidats?", opts: ["Van passar per la meva classe", "Per escrit o per correu", "No en vaig saber res"] },
+  { id: "q7", block: "ce", type: "choice", short: "Informació per votar",
+    q: "Quanta informació tenies sobre els candidats abans de votar?", opts: ["Cap", "Poca", "La suficient", "Molta", "No vaig votar"] },
+  { id: "q8", block: "pet", type: "choice", short: "Has demanat alguna cosa",
+    q: "Has demanat mai alguna cosa a direcció, directament o a través del tutor o dels delegats?", opts: ["Sí", "No"],
+    help: "Si respons que sí, a la pregunta següent et demanarem què va passar." },
+  { id: "q9", block: "pet", type: "choice", short: "Què va passar", when: a => a.q8 === "Sí",
+    q: "Què va passar?", opts: ["Es va fer el que demanava", "Em van respondre, però no va canviar res", "No hi va haver resposta"] },
+  { id: "q10", block: "pet", type: "choice", short: "Porta més propera a l'aula",
+    q: "La porta per on has d'entrar és la que et queda més a prop de l'aula?", opts: ["Sí", "No"] },
+  { id: "q11", block: "pet", type: "choice", short: "T'han explicat per quina porta",
+    q: "T'han explicat per què has d'entrar per aquesta porta?", opts: ["Sí", "No"] },
+  { id: "q12", block: "val", type: "choice", short: "Satisfacció amb com s'escolta l'alumnat",
+    q: "Fins a quin punt estàs satisfet/a amb la manera com l'institut té en compte l'opinió de l'alumnat?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
+  { id: "q13", block: "val", type: "textarea", short: "Una cosa que canviaries", optional: true,
+    q: "Si poguessis canviar una sola cosa de com funciona l'institut, quina seria?",
+    help: "Opcional. Si us plau, sense noms de persones." },
+  { id: "q14", block: "val", type: "choice", short: "Proposta col·lectiva",
+    q: "T'interessaria signar o participar en una proposta col·lectiva per canviar alguna d'aquestes coses?", opts: ["Sí", "No", "Potser"] },
+  { id: "revisio", block: null, type: "review" }
+];
+const D_STEPS = [
+  { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
+    help: "El nom només serveix per comprovar que responen delegats reals i un sol cop per grup. No es passarà a ningú." },
+  { id: "d1", block: "cd", type: "choice", short: "Reunions aquest curs",
+    q: "Quantes reunions del consell de delegats hi ha hagut aquest curs?", opts: ["Cap", "1", "2", "3 o més", "No ho sé"] },
+  { id: "d2", block: "cd", type: "choice", short: "Ordre del dia abans de la reunió",
+    q: "Us envien l'ordre del dia abans de les reunions?", opts: ["Sempre", "A vegades", "Mai", "No hi ha hagut reunions"] },
+  { id: "d3", block: "cd", type: "choice", short: "Acta de les reunions",
+    q: "Es fa acta de les reunions del consell de delegats?", opts: ["Sí, i la podem consultar", "Sí, però no la veiem", "No", "No ho sé"] },
+  { id: "d4", block: "prop", type: "choice", short: "Ha portat propostes",
+    q: "Aquest curs o l'anterior, has portat alguna proposta del teu grup a direcció o al consell de delegats?", opts: ["Sí", "No"],
+    help: "Si respons que sí, a la pregunta següent et demanarem quines." },
+  { id: "d5", block: "prop", type: "proposals", short: "Propostes", when: a => a.d4 === "Sí",
+    q: "Quines propostes vau portar i què en va sortir?",
+    help: "Fins a tres. Escriu el tema en poques paraules, sense noms de persones." },
+  { id: "d6", block: "val", type: "choice", short: "Us expliquen per què no",
+    q: "Quan us diuen que no a una proposta, us expliquen per què?", opts: ["Sempre", "A vegades", "Mai", "No ens han dit mai que no"] },
+  { id: "d7", block: "val", type: "choice", short: "Serveix per canviar coses",
+    q: "Fins a quin punt creus que el consell de delegats serveix per canviar coses?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
+  { id: "d8", block: "val", type: "textarea", short: "Què milloraries", optional: true,
+    q: "Què milloraria el funcionament del consell de delegats?",
+    help: "Opcional. Si us plau, sense noms de persones." },
+  { id: "revisio", block: null, type: "review" }
+];
+const STEPS = MODE === "delegats" ? D_STEPS : G_STEPS;
+const CARRECS = ["Delegat/da", "Sotsdelegat/da"];
+const P_MAX = 3;
+const P_AQUI = ["Al consell de delegats", "A direcció", "Al tutor o tutora"];
+const P_RES = ["Es va fer", "Van respondre, però no es va fer", "No hi va haver resposta", "Encara està pendent"];
+const P_CONST = ["Sí, per escrit", "Només de paraula"];
+const P_FIELDS = [["tema", "Tema"], ["quan", "Quan"], ["aqui", "A qui"], ["res", "Resultat"], ["const", "Constància escrita"]];
+const COURSES = ["3r ESO", "4t ESO", "1r Batxillerat", "2n Batxillerat"];
+const GROUPS = ["A", "B", "C", "D", "E"];
+const LETTERS = "abcdefghi";
+const MAX_TEXT = 600;
+const ALL_Q = STEPS.filter(s => /^[qd]\d+$/.test(s.id));
+
+/* Tres traços de bolígraf lleugerament diferents, perquè cap cercle surti igual */
+const CIRCLES = [
+  "M36 4 C 16 1, 3 10, 4 22 C 5 35, 26 41, 44 37 C 58 33, 58 16, 47 9 C 39 4, 28 4, 20 7",
+  "M30 3 C 12 4, 2 14, 5 25 C 8 37, 30 42, 46 36 C 59 31, 57 13, 44 7 C 35 3, 24 5, 17 9",
+  "M40 6 C 22 0, 5 8, 3 20 C 1 33, 20 42, 40 39 C 56 36, 60 20, 50 11 C 42 4, 30 3, 22 5"
+];
+const circleSvg = i => `<svg viewBox="0 0 60 44" aria-hidden="true"><path pathLength="1" d="${CIRCLES[i % CIRCLES.length]}"/></svg>`;
+
+/* ================= ESTAT ================= */
+let state = { view: "home", pos: 0, answers: {}, consent: false, backToReview: false };
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const visible = () => STEPS.filter(s => !s.when || s.when(state.answers));
+const current = () => visible()[state.pos];
+const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function storeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function storeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+function show(view) {
+  state.view = view;
+  $("#home").hidden = view !== "home";
+  $("#survey").hidden = view !== "survey";
+  $("#done").hidden = view !== "done";
+  window.scrollTo({ top: 0 });
+}
+
+/* ================= PORTADA ================= */
+document.querySelectorAll("[data-info]").forEach(el => { el.innerHTML = INFO[el.dataset.info].html; });
+
+function setOpen(btn, open) {
+  btn.setAttribute("aria-expanded", String(open));
+  btn.firstChild.textContent = open ? "Amagar " : "Llegir-ne més ";
+  document.getElementById(btn.getAttribute("aria-controls")).classList.toggle("open", open);
+}
+document.querySelectorAll(".toggle").forEach(btn => {
+  btn.addEventListener("click", () => setOpen(btn, btn.getAttribute("aria-expanded") !== "true"));
+});
+document.querySelectorAll("[data-goto-info]").forEach(b => b.addEventListener("click", () => {
+  const item = document.getElementById(b.dataset.gotoInfo);
+  setOpen(item.querySelector(".toggle"), true);
+  item.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+}));
+
+/* Exemple interactiu de la portada */
+const SAMPLE_OPTS = ["Més del 50%", "60%", "Dos terços", "75%"];
+let samplePick = 1;
+function renderSample() {
+  $("#sample").innerHTML = SAMPLE_OPTS.map((o, i) =>
+    `<button type="button" class="choice" role="radio" aria-checked="${i === samplePick}" data-i="${i}">
+      <span class="letter">${LETTERS[i]})${circleSvg(i)}</span><span class="label">${esc(o)}</span></button>`).join("");
+  $("#sample").querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => {
+    samplePick = Number(b.dataset.i);
+    $("#sample").querySelectorAll(".choice").forEach(x => x.setAttribute("aria-checked", String(x === b)));
+  }));
+}
+renderSample();
+
+/* ================= ENQUESTA ================= */
+function answerFor(step) {
+  const a = state.answers;
+  if (step.type === "identity") return a.nom && a.curs ? `${a.nom.trim()} · ${a.curs}${a.grup ? " " + a.grup : ""}${a.carrec ? " · " + a.carrec : ""}` : "";
+  if (step.type === "proposals") {
+    const out = [];
+    for (let i = 1; i <= (a.pcount || 1); i++) if ((a[`p${i}_tema`] || "").trim()) out.push(`${a[`p${i}_tema`].trim()} (${a[`p${i}_res`] || "sense resultat"})`);
+    return out.join(" · ");
+  }
+  if (step.other && a[step.id] === step.other) return a[step.id + "_altre"] ? `${step.other}: ${a[step.id + "_altre"].trim()}` : step.other;
+  return (a[step.id] || "").trim();
+}
+
+function isValid(step) {
+  const a = state.answers;
+  if (!step) return false;
+  if (step.type === "identity") return (a.nom || "").trim().split(/\s+/).filter(Boolean).length >= 2 && !!a.curs && (MODE !== "delegats" || !!a.carrec);
+  if (step.type === "proposals") {
+    for (let i = 1; i <= (a.pcount || 1); i++) if (!(a[`p${i}_tema`] || "").trim() || !a[`p${i}_res`]) return false;
+    return true;
+  }
+  if (step.type === "textarea") return true;
+  if (step.type === "review") return state.consent;
+  if (step.other && a[step.id] === step.other) return !!(a[step.id + "_altre"] || "").trim();
+  return !!a[step.id];
+}
+
+function choiceList(name, opts, selected, labelledby, extraClass) {
+  return `<div class="choices ${extraClass || ""}" role="radiogroup" aria-labelledby="${labelledby}">
+    ${opts.map((o, i) => `<button type="button" class="choice" role="radio" aria-checked="${selected === o}" data-name="${name}" data-value="${esc(o)}">
+      <span class="letter">${LETTERS[i]})${circleSvg(i + name.length)}</span><span class="label">${esc(o)}</span></button>`).join("")}
+  </div>`;
+}
+
+function navHtml(step) {
+  const isReview = step.type === "review";
+  const label = isReview ? "Enviar la resposta" : (state.backToReview ? "Tornar a la revisió" : "Continuar");
+  const hint = step.type === "choice" ? `Tecles ${LETTERS[0].toUpperCase()}–${LETTERS[step.opts.length - 1].toUpperCase()} per triar · Intro per continuar` :
+               step.type === "textarea" ? "Ctrl + Intro per continuar" : "";
+  return `<div class="qnav">
+    ${state.pos > 0 ? `<button type="button" class="textbtn" id="back">← Enrere</button>` : `<span></span>`}
+    <span class="keyhint">${hint}</span>
+    <button type="button" class="btn" id="next" ${isValid(step) ? "" : "disabled"}>${label} <span class="arrow" aria-hidden="true">→</span></button>
+  </div>`;
+}
+
+function renderStep() {
+  const step = current();
+  const a = state.answers;
+  let body = "";
+
+  if (step.type === "identity") {
+    body = `
+      <div class="qhead">
+        <p class="qblock">${BLOCKS.tu}</p>
+        <h1 class="qtitle">${esc(step.q)}</h1>
+        <p class="qhelp">${esc(step.help)}</p>
+      </div>
+      <div class="field">
+        <label class="flabel" for="nom">Nom i cognoms</label>
+        <input class="line-input" id="nom" type="text" autocomplete="name" maxlength="80" value="${esc(a.nom || "")}">
+      </div>
+      <div class="field">
+        <span class="flabel" id="curs-l">Curs</span>
+        ${choiceList("curs", COURSES, a.curs, "curs-l", "compact")}
+      </div>
+      <div class="field">
+        <span class="flabel" id="grup-l">Grup <span class="opt">(opcional)</span></span>
+        <div class="groups" role="radiogroup" aria-labelledby="grup-l">
+          ${GROUPS.map((g, i) => `<button type="button" class="choice" role="radio" aria-checked="${a.grup === g}" data-name="grup" data-value="${g}">
+            <span class="letter">${g}${circleSvg(i)}</span></button>`).join("")}
+        </div>
+      </div>
+      ${MODE === "delegats" ? `<div class="field">
+        <span class="flabel" id="carrec-l">Càrrec</span>
+        ${choiceList("carrec", CARRECS, a.carrec, "carrec-l", "compact")}
+      </div>` : ""}`;
+  } else if (step.type === "choice") {
+    body = `
+      <div class="qhead">
+        <p class="qblock">${BLOCKS[step.block]}</p>
+        <h1 class="qtitle" id="q-title">${esc(step.q)}</h1>
+        ${step.help ? `<p class="qhelp">${esc(step.help)}</p>` : ""}
+      </div>
+      ${choiceList(step.id, step.opts, a[step.id], "q-title")}
+      ${step.other ? `<div class="field other" id="other-wrap" ${a[step.id] === step.other ? "" : "hidden"}>
+        <label class="flabel" for="altre">Quin percentatge?</label>
+        <input class="line-input" id="altre" type="text" maxlength="40" value="${esc(a[step.id + "_altre"] || "")}">
+      </div>` : ""}`;
+  } else if (step.type === "proposals") {
+    const n = a.pcount || 1;
+    const cards = Array.from({ length: n }, (_, k) => {
+      const i = k + 1;
+      return `<fieldset class="prop"><legend>Proposta ${i}</legend>
+        <div class="field"><label class="flabel" for="p${i}_tema">Tema</label>
+          <input class="line-input" id="p${i}_tema" data-key="p${i}_tema" type="text" maxlength="120" placeholder="Per exemple, canviar la porta d'entrada" value="${esc(a[`p${i}_tema`] || "")}"></div>
+        <div class="field"><label class="flabel" for="p${i}_quan">Quan <span class="opt">(aproximadament)</span></label>
+          <input class="line-input" id="p${i}_quan" data-key="p${i}_quan" type="text" maxlength="40" placeholder="Per exemple, octubre del 2025" value="${esc(a[`p${i}_quan`] || "")}"></div>
+        <div class="field"><span class="flabel" id="p${i}_aqui-l">A qui la vau portar</span>${choiceList(`p${i}_aqui`, P_AQUI, a[`p${i}_aqui`], `p${i}_aqui-l`, "compact")}</div>
+        <div class="field"><span class="flabel" id="p${i}_res-l">Què en va sortir</span>${choiceList(`p${i}_res`, P_RES, a[`p${i}_res`], `p${i}_res-l`, "compact")}</div>
+        <div class="field"><span class="flabel" id="p${i}_const-l">En queda constància escrita?</span>${choiceList(`p${i}_const`, P_CONST, a[`p${i}_const`], `p${i}_const-l`, "compact")}</div>
+      </fieldset>`;
+    }).join("");
+    body = `
+      <div class="qhead">
+        <p class="qblock">${BLOCKS[step.block]}</p>
+        <h1 class="qtitle">${esc(step.q)}</h1>
+        <p class="qhelp">${esc(step.help)}</p>
+      </div>
+      ${cards}
+      <div class="prop-actions">
+        ${n < P_MAX ? `<button type="button" class="addprop" id="add-prop">+ Afegir una altra proposta</button>` : ""}
+        ${n > 1 ? `<button type="button" class="addprop remove" id="remove-prop">Treure l'última</button>` : ""}
+      </div>`;
+  } else if (step.type === "textarea") {
+    const v = a[step.id] || "";
+    body = `
+      <div class="qhead">
+        <p class="qblock">${BLOCKS[step.block]}</p>
+        <h1 class="qtitle"><label for="txt">${esc(step.q)}</label></h1>
+        <p class="qhelp">${esc(step.help)}</p>
+      </div>
+      <div class="field">
+        <textarea class="lined" id="txt" maxlength="${MAX_TEXT}" placeholder="Escriu aquí…">${esc(v)}</textarea>
+        <span class="counter" id="tcount">${v.length} / ${MAX_TEXT}</span>
+      </div>`;
+  } else {
+    const shown = visible();
+    body = `
+      <div class="qhead">
+        <p class="qblock">Últim pas</p>
+        <h1 class="qtitle">Revisa-ho i envia</h1>
+        <p class="qhelp">Pots canviar qualsevol resposta abans d'enviar.</p>
+      </div>
+      <ul class="review">
+        <li><span class="n">··</span><span><span class="rq">Qui respon</span><span class="ra">${esc(answerFor(STEPS[0]))}</span></span>
+          <button class="edit" type="button" data-edit="identitat">Canviar</button></li>
+        ${ALL_Q.filter(s => shown.includes(s)).map(s => {
+          const ans = answerFor(s);
+          return `<li><span class="n">${s.id.slice(1).padStart(2, "0")}</span>
+            <span><span class="rq">${esc(s.short)}</span><span class="ra ${ans ? "" : "blank"}">${esc(ans || "En blanc")}</span></span>
+            <button class="edit" type="button" data-edit="${s.id}">Canviar</button></li>`;
+        }).join("")}
+      </ul>
+      <label class="consent">
+        <input type="checkbox" id="consent" ${state.consent ? "checked" : ""}>
+        <span>Tinc 14 anys o més, sóc alumne o alumna del centre i accepto que les meves respostes es facin servir tal com s'explica a <button type="button" class="inline-link" data-drawer>què farem amb les respostes</button>.</span>
+      </label>
+      <div class="hp" aria-hidden="true"><label for="hp">Deixa aquest camp buit</label><input id="hp" type="text" tabindex="-1" autocomplete="off"></div>
+      ${DEMO ? `<p class="note">Aquesta còpia de la pàgina encara no està connectada al full de respostes. Pots provar-la sencera, però la resposta no s'enviarà.</p>` : ""}
+      <div id="send-error" aria-live="assertive"></div>`;
+  }
+
+  $("#stage").innerHTML = body + navHtml(step);
+  updateChrome(step);
+  bindStep(step);
+  const focusEl = $("#stage").querySelector("#nom, #p1_tema, #txt, .choice[aria-checked='true'], .choice, #consent");
+  if (focusEl) focusEl.focus({ preventScroll: true });
+}
+
+function updateChrome(step) {
+  const vs = visible();
+  const qi = ALL_Q.indexOf(step);
+  $("#counter").innerHTML = qi >= 0
+    ? `<span class="blk">${esc(BLOCKS[step.block])} · </span><strong>${String(qi + 1).padStart(2, "0")}</strong> / ${ALL_Q.length}`
+    : (step.type === "identity" ? "Abans de començar" : "Revisió");
+  $("#bar").style.width = `${Math.round((state.pos / (vs.length - 1)) * 100)}%`;
+}
+
+function refreshNext() {
+  const n = $("#next");
+  if (n) n.disabled = !isValid(current());
+}
+
+function bindStep(step) {
+  const stage = $("#stage");
+  stage.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => choose(b.dataset.name, b.dataset.value)));
+  stage.querySelectorAll("[data-key]").forEach(inp => inp.addEventListener("input", e => { state.answers[e.target.dataset.key] = e.target.value; refreshNext(); }));
+  const addP = stage.querySelector("#add-prop");
+  if (addP) addP.addEventListener("click", () => {
+    state.answers.pcount = (state.answers.pcount || 1) + 1;
+    renderStep();
+    const f = document.getElementById(`p${state.answers.pcount}_tema`);
+    if (f) { f.focus(); f.scrollIntoView({ block: "center", behavior: reduceMotion() ? "auto" : "smooth" }); }
+  });
+  const remP = stage.querySelector("#remove-prop");
+  if (remP) remP.addEventListener("click", () => {
+    const n = state.answers.pcount || 1;
+    P_FIELDS.forEach(([k]) => delete state.answers[`p${n}_${k}`]);
+    state.answers.pcount = n - 1;
+    renderStep();
+  });
+  const nom = stage.querySelector("#nom");
+  if (nom) nom.addEventListener("input", e => { state.answers.nom = e.target.value; refreshNext(); });
+  const altre = stage.querySelector("#altre");
+  if (altre) altre.addEventListener("input", e => { state.answers[step.id + "_altre"] = e.target.value; refreshNext(); });
+  const txt = stage.querySelector("#txt");
+  if (txt) txt.addEventListener("input", e => {
+    state.answers[step.id] = e.target.value;
+    $("#tcount").textContent = `${e.target.value.length} / ${MAX_TEXT}`;
+  });
+  const consent = stage.querySelector("#consent");
+  if (consent) consent.addEventListener("change", e => { state.consent = e.target.checked; refreshNext(); });
+  stage.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => {
+    const idx = visible().findIndex(s => s.id === b.dataset.edit);
+    if (idx >= 0) { state.backToReview = true; go(idx); }
+  }));
+  stage.querySelectorAll("[data-drawer]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); openDrawer(); }));
+  const back = stage.querySelector("#back");
+  if (back) back.addEventListener("click", backward);
+  stage.querySelector("#next").addEventListener("click", forward);
+}
+
+let advanceTimer = null;
+function choose(name, value) {
+  const step = current();
+  state.answers[name] = value;
+  document.querySelectorAll(`#stage .choice[data-name="${name}"]`).forEach(b =>
+    b.setAttribute("aria-checked", String(b.dataset.value === value)));
+  if (name === "q8" && value !== "Sí") delete state.answers.q9;
+  if (step.other) {
+    const isOther = value === step.other;
+    $("#other-wrap").hidden = !isOther;
+    if (isOther) { $("#altre").focus(); refreshNext(); return; }
+  }
+  refreshNext();
+  if (step.type === "choice") {
+    clearTimeout(advanceTimer);
+    advanceTimer = setTimeout(() => { if (current() === step && isValid(step)) forward(); }, 520);
+  }
+}
+
+function go(idx) {
+  clearTimeout(advanceTimer);
+  const stage = $("#stage");
+  if (reduceMotion()) { state.pos = idx; renderStep(); window.scrollTo({ top: 0 }); return; }
+  stage.classList.add("out");
+  setTimeout(() => {
+    state.pos = idx;
+    stage.classList.remove("out");
+    stage.classList.add("in");
+    renderStep();
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove("in")));
+  }, 200);
+}
+
+function forward() {
+  const step = current();
+  if (!isValid(step)) return;
+  if (step.type === "review") { send(); return; }
+  const vs = visible();
+  if (state.backToReview) {
+    state.backToReview = false;
+    go(vs.findIndex(s => s.type === "review"));
+    return;
+  }
+  go(Math.min(state.pos + 1, vs.length - 1));
+}
+
+function backward() {
+  if (state.pos > 0) { state.backToReview = false; go(state.pos - 1); }
+}
+
+/* ================= ENVIAMENT ================= */
+function newId() {
+  try { return crypto.randomUUID(); } catch (e) { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+}
+let submissionId = null;
+
+function payload() {
+  const a = state.answers;
+  const shown = visible();
+  const out = {
+    "ID": submissionId,
+    "Nom i cognoms": (a.nom || "").trim(),
+    "Curs": a.curs || "",
+    "Grup": a.grup || "",
+    "_full": SHEET_TAB
+  };
+  if (MODE === "delegats") out["Càrrec"] = a.carrec || "";
+  ALL_Q.forEach(s => {
+    if (s.type === "proposals") {
+      const on = shown.includes(s);
+      for (let i = 1; i <= P_MAX; i++) {
+        const used = on && i <= (a.pcount || 1);
+        P_FIELDS.forEach(([k, label]) => { out[`P${i} · ${label}`] = !on ? "No aplica" : (used ? String(a[`p${i}_${k}`] || "").trim() : ""); });
+      }
+      return;
+    }
+    out[`${s.id.slice(1).padStart(2, "0")}. ${s.short}`] = shown.includes(s) ? (answerFor(s) || "En blanc") : "No aplica";
+  });
+  return out;
+}
+
+async function send() {
+  const err = $("#send-error");
+  const next = $("#next");
+  if (($("#hp") || {}).value) { finish("sent"); return; }
+  if (DEMO) { finish("demo"); return; }
+  if (!submissionId) submissionId = newId();
+  next.disabled = true;
+  next.innerHTML = "Enviant…";
+  err.innerHTML = "";
+  const body = JSON.stringify(payload());
+  try {
+    let ok = false;
+    try {
+      const res = await fetch(CONFIG.ENDPOINT, { method: "POST", body });
+      const data = await res.json().catch(() => ({}));
+      ok = res.ok && data.ok === true;
+      if (!ok) throw new Error(data.error || "error");
+    } catch (first) {
+      if (!(first instanceof TypeError)) throw first;
+      /* Si el navegador no deixa llegir la resposta, es torna a enviar sense llegir-la.
+         El full ignora una resposta amb el mateix ID, així que no es duplica. */
+      await fetch(CONFIG.ENDPOINT, { method: "POST", body, mode: "no-cors" });
+      ok = true;
+    }
+    storeSet(SENT_KEY, "1");
+    finish("sent");
+  } catch (e) {
+    err.innerHTML = `<p class="alert">No s'ha pogut enviar la resposta. Comprova la connexió i torna-ho a provar. Les respostes no s'han perdut.</p>`;
+    next.disabled = false;
+    next.innerHTML = `Tornar a enviar <span class="arrow" aria-hidden="true">→</span>`;
+  }
+}
+
+function finish(mode) {
+  const underline = word => `<span class="underlined">${word}<svg class="draw" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 10 C 60 4, 120 12, 180 7 S 260 5, 297 9" fill="none" stroke="var(--pen)" stroke-width="3" stroke-linecap="round"/></svg></span>`;
+  $("#done-body").innerHTML = mode === "demo" ? `
+      <p class="kicker">Mode de prova</p>
+      <h1 class="display">La pàgina ${underline("funciona")}.</h1>
+      <p class="lede">Aquesta còpia encara no està connectada al full de respostes, així que la resposta no s'ha enviat. Quan es configuri, aquí sortirà la confirmació de debò.</p>
+      <div class="cta-row"><button class="btn secondary" type="button" id="restart">Tornar a la portada</button></div>` : `
+      <p class="kicker">Resposta enviada</p>
+      <h1 class="display">${underline("Gràcies")}.</h1>
+      <p class="lede">${MODE === "delegats" ? "La teva resposta ha arribat. Si l'altre delegat o delegada del teu grup encara no l'ha feta, passa-li l'enllaç." : "La teva resposta ha arribat. Com més alumnes responguin, més pes tindran els resultats. Si tens companys de 3r d'ESO a 2n de batxillerat que encara no l'han feta, passa'ls l'enllaç."}</p>
+      ${MODE === "general" ? `<p class="crosslink">Ets delegat o delegada? Respon també el <a href="delegats/">mòdul per a delegats</a>.</p>` : ""}
+      <div class="cta-row">
+        <button class="btn" type="button" id="copy">Copiar l'enllaç <span class="arrow" aria-hidden="true">→</span></button>
+        <span class="meta" id="copy-msg" role="status"></span>
+      </div>`;
+  show("done");
+  const copy = $("#copy");
+  if (copy) copy.addEventListener("click", async () => {
+    const url = location.href.split("#")[0];
+    try { await navigator.clipboard.writeText(url); $("#copy-msg").textContent = "Enllaç copiat."; }
+    catch (e) { $("#copy-msg").textContent = url; }
+  });
+  const restart = $("#restart");
+  if (restart) restart.addEventListener("click", () => {
+    state = { view: "home", pos: 0, answers: {}, consent: false, backToReview: false };
+    show("home");
+  });
+}
+
+/* ================= PANELL ================= */
+const drawer = $("#drawer");
+$("#drawer-body").innerHTML = Object.values(INFO).map(i =>
+  `<section class="drawer-section"><h2>${esc(i.title)}</h2><div class="more open"><div><div class="inner">${i.html}</div></div></div></section>`).join("");
+function openDrawer() { try { drawer.showModal(); } catch (e) { drawer.setAttribute("open", ""); } }
+$("#open-info").addEventListener("click", openDrawer);
+$("#drawer-close").addEventListener("click", () => drawer.close());
+drawer.addEventListener("click", e => { if (e.target === drawer) drawer.close(); });
+
+/* ================= TECLAT I ARRENCADA ================= */
+document.addEventListener("keydown", e => {
+  if (state.view !== "survey" || drawer.open) return;
+  const step = current();
+  const tag = (e.target.tagName || "").toLowerCase();
+  const typing = tag === "input" || tag === "textarea";
+  if (e.key === "Enter") {
+    if (tag === "textarea" && !(e.ctrlKey || e.metaKey)) return;
+    if (tag === "button" && e.target.id !== "next") return;
+    if (tag === "input" && e.target.type === "checkbox") return;
+    e.preventDefault();
+    forward();
+    return;
+  }
+  if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (step.type === "choice") {
+    const k = e.key.toLowerCase();
+    let i = LETTERS.indexOf(k);
+    if (i < 0 && /^[1-9]$/.test(k)) i = Number(k) - 1;
+    if (i >= 0 && i < step.opts.length) { e.preventDefault(); choose(step.id, step.opts[i]); }
+  }
+});
+
+$("#start").addEventListener("click", () => { show("survey"); renderStep(); });
+$("#exit").addEventListener("click", () => show("home"));
+
+function applyDelegatsHome() {
+  document.title = "Quòrum · Delegats";
+  document.querySelector(".kicker").textContent = "Institut Vil·la Romana · Mòdul per a delegats";
+  const svg = document.querySelector("#hero-title .underlined svg").outerHTML;
+  $("#hero-title").innerHTML = `Les propostes que porteu, <span class="underlined">on van a parar?${svg}</span>`;
+  document.querySelector(".hero .lede").textContent = "Un mòdul curt per a delegats i sotsdelegats de 3r d'ESO a 2n de batxillerat. Volem saber com funciona el consell de delegats i què ha passat amb les propostes que heu portat.";
+  document.querySelector(".cta-row .meta").innerHTML = `<span id="meta-count">8</span> preguntes · 5 minuts · només per a delegats i sotsdelegats`;
+  document.querySelector(".sample-meta").textContent = "Pregunta 06 de 08 · Valoració";
+  $("#sample-q").textContent = "Quan us diuen que no a una proposta, us expliquen per què?";
+  SAMPLE_OPTS.splice(0, SAMPLE_OPTS.length, "Sempre", "A vegades", "Mai");
+  samplePick = 1; renderSample();
+  document.querySelector(".topic-grid").innerHTML = `
+    <div class="topic"><span class="count">3</span><span class="name">Consell de delegats</span><span class="desc">Quantes reunions hi ha hagut, si hi ha ordre del dia i si es fa acta.</span></div>
+    <div class="topic"><span class="count">2</span><span class="name">Propostes</span><span class="desc">Quines propostes heu portat, a qui i què en va sortir.</span></div>
+    <div class="topic"><span class="count">3</span><span class="name">Valoració</span><span class="desc">Si us expliquen les respostes i si el consell serveix per canviar coses.</span></div>`;
+  $("#crosslink").innerHTML = `Aquest mòdul és per a delegats. L'<a href="../">enquesta general</a> és per a tot l'alumnat de 3r d'ESO a 2n de batxillerat.`;
+  INFO.rules.html = INFO.rules.html.replace("Respon només si ets alumne o alumna del centre, de 3r d'ESO a 2n de batxillerat.", "Respon només si ets delegat, delegada, sotsdelegat o sotsdelegada d'un grup de 3r d'ESO a 2n de batxillerat.").replace("Una resposta per persona.", "Una resposta per persona. Al mateix grup hi pot respondre el delegat i el sotsdelegat.");
+  document.querySelector('[data-info="rules"]').innerHTML = INFO.rules.html;
+  document.querySelector("#rules .sum").textContent = "Només per a delegats i sotsdelegats de 3r d'ESO a 2n de batxillerat, una resposta per persona. Sense noms de professors ni d'altres alumnes.";
+  $("#drawer-body").innerHTML = Object.values(INFO).map(i =>
+    `<section class="drawer-section"><h2>${esc(i.title)}</h2><div class="more open"><div><div class="inner">${i.html}</div></div></div></section>`).join("");
+}
+
+function start(data) {
+  if (MODE === "delegats") applyDelegatsHome();
+  if (storeGet(SENT_KEY)) $("#already").hidden = false;
+  $("#meta-count").textContent = ALL_Q.length;
+  if (data && data.answers) {
+    state = Object.assign(state, data);
+    if (state.view === "survey") { show("survey"); renderStep(); }
+  }
+}
+window.claude?.hot?.snapshot?.(() => ({
+  view: state.view === "done" ? "home" : state.view,
+  pos: state.pos, answers: state.answers, consent: state.consent, backToReview: state.backToReview
+}));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>
