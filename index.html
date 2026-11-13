@@ -289,6 +289,11 @@ a.btn { text-decoration: none; }
 #crosslink { padding: 0 0 28px; }
 .crosslink { margin: 0; font-size: 15px; color: var(--soft); }
 .crosslink a { font-weight: 600; color: var(--ink); text-underline-offset: 3px; }
+.fhint { margin: 2px 0 0; font-size: 13px; line-height: 1.45; color: var(--faint); max-width: 46em; }
+.starters { display: flex; flex-wrap: wrap; gap: 8px; }
+.starter { border: 1px solid var(--rule); background: var(--paper); border-radius: 999px; padding: 7px 13px; font-size: 14px; cursor: pointer; transition: border-color 160ms ease, color 160ms ease; }
+.starter:hover { border-color: var(--pen); color: var(--pen); }
+.anon-note { margin: 0; font-size: 14px; line-height: 1.5; color: var(--soft); border-left: 2px solid var(--pen); padding-left: 12px; }
 .counter { font-size: 13px; color: var(--faint); text-align: right; font-variant-numeric: tabular-nums; }
 
 .qnav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -374,7 +379,7 @@ dialog.drawer::backdrop { background: rgba(0, 0, 0, 0.35); }
           <p class="lede reveal d3">Una enquesta curta, feta per alumnes, sobre les vagues, el consell escolar i què passa amb les propostes que fem. Amb les respostes prepararem propostes concretes per als canals del centre.</p>
           <div class="cta-row reveal d4">
             <button class="btn" type="button" id="start">Respondre l'enquesta <span class="arrow" aria-hidden="true">→</span></button>
-            <span class="meta"><span id="meta-count">14</span> preguntes · 4 minuts · de 3r d'ESO a 2n de batxillerat</span>
+            <span class="meta"><span id="meta-count">15</span> preguntes · 4 minuts · de 3r d'ESO a 2n de batxillerat</span>
           </div>
           <p class="crosslink reveal d4" id="cta-alt">Ets delegat o delegada? També hi ha un <a href="delegats/">mòdul per a delegats</a>.</p>
           <p class="already" id="already" hidden>Des d'aquest navegador ja s'ha enviat una resposta. Si és teva, no cal que tornis a respondre.</p>
@@ -382,7 +387,7 @@ dialog.drawer::backdrop { background: rgba(0, 0, 0, 0.35); }
 
         <figure class="reveal d5" style="margin:0">
           <div class="sample">
-            <p class="sample-meta">Pregunta 02 de 14 · Vaga</p>
+            <p class="sample-meta">Pregunta 02 de 15 · Vaga</p>
             <p class="sample-q" id="sample-q">Quin percentatge et semblaria just per autoritzar una vaga?</p>
             <div class="choices compact" role="radiogroup" aria-labelledby="sample-q" id="sample"></div>
           </div>
@@ -418,7 +423,7 @@ dialog.drawer::backdrop { background: rgba(0, 0, 0, 0.35); }
         <h2 id="topics-title">Què preguntem</h2>
         <div class="topic-grid">
           <div class="topic"><span class="count">3</span><span class="name">Vaga</span><span class="desc">El percentatge que demanen les normes i si et sembla just.</span></div>
-          <div class="topic"><span class="count">4</span><span class="name">Consell escolar</span><span class="desc">Si et van informar de les eleccions i com vas poder votar.</span></div>
+          <div class="topic"><span class="count">5</span><span class="name">Consell escolar</span><span class="desc">Si et van informar de les eleccions, com vas poder votar i si en coneixes les decisions.</span></div>
           <div class="topic"><span class="count">4</span><span class="name">Peticions</span><span class="desc">Què passa quan es demana alguna cosa, i les portes d'entrada.</span></div>
           <div class="topic"><span class="count">3</span><span class="name">Valoració</span><span class="desc">Si l'opinió de l'alumnat compta, i què canviaries.</span></div>
         </div>
@@ -506,7 +511,8 @@ const INFO = {
     <ul>
       <li>Comptar les respostes i publicar-ne els percentatges.</li>
       <li>Separar els resultats per curs només quan n'hi hagi prou perquè ningú sigui identificable.</li>
-      <li>Citar fragments de la pregunta oberta sense nom ni cap detall que permeti saber qui ho ha escrit.</li>
+      <li>Guardar els comentaris escrits en una llista apart, sense nom, sense correu i sense l'hora exacta, i barrejats perquè no es puguin relacionar amb cap resposta.</li>
+      <li>Citar fragments d'aquests comentaris en l'informe final, sense cap detall que permeti saber qui els ha escrit.</li>
     </ul>
     <h3>Què no farem</h3>
     <ul>
@@ -524,13 +530,16 @@ const INFO = {
 const BLOCKS = { tu: "Abans de començar", vaga: "Vaga", ce: "Consell escolar", pet: "Peticions i comunicació", val: "Valoració", cd: "Consell de delegats", prop: "Propostes" };
 const G_STEPS = [
   { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
-    help: "El nom i el correu només serveixen per comprovar que responen alumnes reals i un sol cop. No es passaran a ningú." },
+    help: "Unes dades bàsiques abans de començar. Les respostes no es mostraran mai al costat del teu nom." },
   { id: "q1", block: "vaga", type: "choice", short: "Sabies que cal un 75%",
     q: "Sabies que les normes de l'institut demanen que el 75% de la classe estigui a favor de fer vaga perquè l'autoritzin?", opts: ["Sí", "No"] },
   { id: "q2", block: "vaga", type: "choice", short: "Percentatge que et sembla just", other: "Un altre percentatge",
     q: "Quin percentatge et semblaria just per autoritzar una vaga?", opts: ["Més del 50% (majoria simple)", "60%", "Dos terços (67%)", "75%", "Un altre percentatge"] },
   { id: "q3", block: "vaga", type: "choice", short: "No has pogut fer vaga pel percentatge",
     q: "Alguna vegada has volgut fer vaga i no has pogut perquè la classe no arribava al percentatge?", opts: ["Sí", "No", "No ho sé"] },
+  { id: "c1", block: "vaga", type: "comment", anon: true, short: "Comentari sobre les vagues", tema: "Vagues",
+    q: "Hi ha alguna cosa que vulguis explicar sobre les vagues?",
+    help: "Opcional. Per exemple, una vegada que no vau poder fer vaga, o què proposaries." },
   { id: "q4", block: "ce", type: "choice", short: "Coneixes els representants",
     q: "Saps qui són els representants de l'alumnat al consell escolar?", opts: ["Sí", "No"] },
   { id: "q5", block: "ce", type: "choice", short: "Et van dir que podies presentar-te",
@@ -539,27 +548,36 @@ const G_STEPS = [
     q: "Com vas conèixer els candidats?", opts: ["Van passar per la meva classe", "Per escrit o per correu", "No en vaig saber res"] },
   { id: "q7", block: "ce", type: "choice", short: "Informació per votar",
     q: "Quanta informació tenies sobre els candidats abans de votar?", opts: ["Cap", "Poca", "La suficient", "Molta", "No vaig votar"] },
-  { id: "q8", block: "pet", type: "choice", short: "Has demanat alguna cosa",
+  { id: "q8", block: "ce", type: "choice", short: "Coneixes decisions del consell escolar",
+    q: "Coneixes alguna decisió del consell escolar que t'hagi afectat?", opts: ["Sí, i m'ha ajudat", "Sí, però no m'ha afectat gaire", "Sí, i m'ha perjudicat", "No en conec cap"],
+    help: "Per exemple, un canvi de normes, d'horaris o d'instal·lacions que s'hi hagi aprovat." },
+  { id: "c2", block: "ce", type: "comment", anon: true, short: "Comentari sobre les eleccions", tema: "Consell escolar",
+    q: "Vols explicar alguna cosa sobre com es van fer les eleccions al consell escolar?",
+    help: "Opcional. Com et vas assabentar de les eleccions, o què hauria d'haver passat." },
+  { id: "q9", block: "pet", type: "choice", short: "Has demanat alguna cosa",
     q: "Has demanat mai alguna cosa a direcció, directament o a través del tutor o dels delegats?", opts: ["Sí", "No"],
     help: "Si respons que sí, a la pregunta següent et demanarem què va passar." },
-  { id: "q9", block: "pet", type: "choice", short: "Què va passar", when: a => a.q8 === "Sí",
+  { id: "q10", block: "pet", type: "choice", short: "Què va passar", when: a => a.q9 === "Sí",
     q: "Què va passar?", opts: ["Es va fer el que demanava", "Em van respondre, però no va canviar res", "No hi va haver resposta"] },
-  { id: "q10", block: "pet", type: "choice", short: "Porta més propera a l'aula",
+  { id: "q11", block: "pet", type: "choice", short: "Porta més propera a l'aula",
     q: "La porta per on has d'entrar és la que et queda més a prop de l'aula?", opts: ["Sí", "No"] },
-  { id: "q11", block: "pet", type: "choice", short: "T'han explicat per quina porta",
+  { id: "q12", block: "pet", type: "choice", short: "T'han explicat per quina porta",
     q: "T'han explicat per què has d'entrar per aquesta porta?", opts: ["Sí", "No"] },
-  { id: "q12", block: "val", type: "choice", short: "Satisfacció amb com s'escolta l'alumnat",
+  { id: "c3", block: "pet", type: "comment", anon: true, short: "Comentari sobre peticions", tema: "Peticions",
+    q: "Vols explicar alguna cosa que vau demanar i què en va sortir?",
+    help: "Opcional. Una situació concreta ajuda molt més que una opinió general." },
+  { id: "q13", block: "val", type: "choice", short: "Satisfacció amb com s'escolta l'alumnat",
     q: "Fins a quin punt estàs satisfet/a amb la manera com l'institut té en compte l'opinió de l'alumnat?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
-  { id: "q13", block: "val", type: "textarea", short: "Una cosa que canviaries", optional: true,
+  { id: "q14", block: "val", type: "textarea", anon: true, tema: "Una cosa que canviaries", short: "Una cosa que canviaries", optional: true,
     q: "Si poguessis canviar una sola cosa de com funciona l'institut, quina seria?",
-    help: "Opcional. Si us plau, sense noms de persones." },
-  { id: "q14", block: "val", type: "choice", short: "Proposta col·lectiva",
+    help: "Opcional. El que sigui, gran o petit. Si us plau, sense noms de persones." },
+  { id: "q15", block: "val", type: "choice", short: "Proposta col·lectiva",
     q: "T'interessaria signar o participar en una proposta col·lectiva per canviar alguna d'aquestes coses?", opts: ["Sí", "No", "Potser"] },
   { id: "revisio", block: null, type: "review" }
 ];
 const D_STEPS = [
   { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
-    help: "El nom i el correu només serveixen per comprovar que responen delegats reals i un sol cop. No es passaran a ningú." },
+    help: "Unes dades bàsiques abans de començar. Les dades del teu grup ja hi poden sortir posades." },
   { id: "d1", block: "cd", type: "choice", short: "Reunions aquest curs",
     q: "Quantes reunions del consell de delegats hi ha hagut aquest curs?", opts: ["Cap", "1", "2", "3 o més", "No ho sé"] },
   { id: "d2", block: "cd", type: "choice", short: "Ordre del dia abans de la reunió",
@@ -576,7 +594,7 @@ const D_STEPS = [
     q: "Quan us diuen que no a una proposta, us expliquen per què?", opts: ["Sempre", "A vegades", "Mai", "No ens han dit mai que no"] },
   { id: "d7", block: "val", type: "choice", short: "Serveix per canviar coses",
     q: "Fins a quin punt creus que el consell de delegats serveix per canviar coses?", opts: ["Gens", "Poc", "Bastant", "Molt"] },
-  { id: "d8", block: "val", type: "textarea", short: "Què milloraries", optional: true,
+  { id: "d8", block: "val", type: "textarea", anon: true, tema: "Consell de delegats", short: "Què milloraries", optional: true,
     q: "Què milloraria el funcionament del consell de delegats?",
     help: "Opcional. Si us plau, sense noms de persones." },
   { id: "revisio", block: null, type: "review" }
@@ -585,6 +603,7 @@ const STEPS = MODE === "delegats" ? D_STEPS : G_STEPS;
 const CARRECS = MODE === "delegats" ? ["Delegat/da", "Sotsdelegat/da"] : ["Delegat/da", "Sotsdelegat/da", "No"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const P_MAX = 3;
+const STARTERS = ["Una vegada", "No entenc per què", "Proposaria que", "M'agradaria que"];
 const P_AQUI = ["Al consell de delegats", "A direcció", "Al tutor o tutora"];
 const P_RES = ["Es va fer", "Van respondre, però no es va fer", "No hi va haver resposta", "Encara està pendent"];
 const P_CONST = ["Sí, per escrit", "Només de paraula"];
@@ -673,7 +692,7 @@ function isValid(step) {
     for (let i = 1; i <= (a.pcount || 1); i++) if (!(a[`p${i}_tema`] || "").trim() || !a[`p${i}_res`]) return false;
     return true;
   }
-  if (step.type === "textarea") return true;
+  if (step.type === "textarea" || step.type === "comment") return true;
   if (step.type === "review") return state.consent;
   if (step.other && a[step.id] === step.other) return !!(a[step.id + "_altre"] || "").trim();
   return !!a[step.id];
@@ -688,9 +707,10 @@ function choiceList(name, opts, selected, labelledby, extraClass) {
 
 function navHtml(step) {
   const isReview = step.type === "review";
-  const label = isReview ? "Enviar la resposta" : (state.backToReview ? "Tornar a la revisió" : "Continuar");
+  const emptyOptional = (step.type === "comment" || step.type === "textarea") && !(state.answers[step.id] || "").trim();
+  const label = isReview ? "Enviar la resposta" : (state.backToReview ? "Tornar a la revisió" : (emptyOptional ? "Ometre" : "Continuar"));
   const hint = step.type === "choice" ? `Tecles ${LETTERS[0].toUpperCase()}–${LETTERS[step.opts.length - 1].toUpperCase()} per triar · Intro per continuar` :
-               step.type === "textarea" ? "Ctrl + Intro per continuar" : "";
+               (step.type === "textarea" || step.type === "comment") ? "Ctrl + Intro per continuar" : "";
   return `<div class="qnav">
     ${state.pos > 0 ? `<button type="button" class="textbtn" id="back">← Enrere</button>` : `<span></span>`}
     <span class="keyhint">${hint}</span>
@@ -713,10 +733,12 @@ function renderStep() {
       <div class="field">
         <label class="flabel" for="nom">Nom i cognoms</label>
         <input class="line-input" id="nom" type="text" autocomplete="name" maxlength="80" value="${esc(a.nom || "")}">
+        <p class="fhint">El demanem només per comprovar que respon gent real i que cadascú respon un sol cop. No el veurà direcció ni cap professor, i no sortirà enlloc.</p>
       </div>
       <div class="field">
         <label class="flabel" for="correu">Correu electrònic <span class="opt">(millor el de l'institut)</span></label>
         <input class="line-input" id="correu" type="email" autocomplete="email" inputmode="email" maxlength="120" value="${esc(a.correu || "")}">
+        <p class="fhint">Serveix perquè ningú pugui respondre amb el nom d'una altra persona. Tampoc el compartirem.</p>
       </div>
       <div class="field">
         <span class="flabel" id="curs-l">Curs</span>
@@ -770,18 +792,20 @@ function renderStep() {
         ${n < P_MAX ? `<button type="button" class="addprop" id="add-prop">+ Afegir una altra proposta</button>` : ""}
         ${n > 1 ? `<button type="button" class="addprop remove" id="remove-prop">Treure l'última</button>` : ""}
       </div>`;
-  } else if (step.type === "textarea") {
+  } else if (step.type === "textarea" || step.type === "comment") {
     const v = a[step.id] || "";
     body = `
       <div class="qhead">
-        <p class="qblock">${BLOCKS[step.block]}</p>
+        <p class="qblock">${BLOCKS[step.block]}${step.type === "comment" ? " · comentari opcional" : ""}</p>
         <h1 class="qtitle"><label for="txt">${esc(step.q)}</label></h1>
         <p class="qhelp">${esc(step.help)}</p>
       </div>
+      ${step.anon ? `<div class="starters" aria-label="Idees per començar">${STARTERS.map(t => `<button type="button" class="starter" data-starter="${esc(t)}">${esc(t)}…</button>`).join("")}</div>` : ""}
       <div class="field">
-        <textarea class="lined" id="txt" maxlength="${MAX_TEXT}" placeholder="Escriu aquí…">${esc(v)}</textarea>
+        <textarea class="lined" id="txt" maxlength="${MAX_TEXT}" placeholder="Escriu aquí, amb les teves paraules…">${esc(v)}</textarea>
         <span class="counter" id="tcount">${v.length} / ${MAX_TEXT}</span>
-      </div>`;
+      </div>
+      ${step.anon ? `<p class="anon-note">Aquest comentari es guarda apart, sense el teu nom ni el teu correu, i barrejat amb els dels altres. Ningú del centre podrà saber qui l'ha escrit. Si no vols que se sàpiga, evita detalls que t'identifiquin.</p>` : ""}`;
   } else {
     const shown = visible();
     body = `
@@ -799,6 +823,9 @@ function renderStep() {
             <span><span class="rq">${esc(s.short)}</span><span class="ra ${ans ? "" : "blank"}">${esc(ans || "En blanc")}</span></span>
             <button class="edit" type="button" data-edit="${s.id}">Canviar</button></li>`;
         }).join("")}
+        ${shown.filter(s => s.type === "comment" && (a[s.id] || "").trim()).map(s => `<li><span class="n">··</span>
+            <span><span class="rq">${esc(s.short)} (anònim)</span><span class="ra">${esc(a[s.id].trim())}</span></span>
+            <button class="edit" type="button" data-edit="${s.id}">Canviar</button></li>`).join("")}
       </ul>
       <label class="consent">
         <input type="checkbox" id="consent" ${state.consent ? "checked" : ""}>
@@ -821,7 +848,7 @@ function updateChrome(step) {
   const qi = ALL_Q.indexOf(step);
   $("#counter").innerHTML = qi >= 0
     ? `<span class="blk">${esc(BLOCKS[step.block])} · </span><strong>${String(qi + 1).padStart(2, "0")}</strong> / ${ALL_Q.length}`
-    : (step.type === "identity" ? "Abans de començar" : "Revisió");
+    : (step.type === "identity" ? "Abans de començar" : step.type === "comment" ? "Comentari opcional" : "Revisió");
   $("#bar").style.width = `${Math.round((state.pos / (vs.length - 1)) * 100)}%`;
 }
 
@@ -855,6 +882,18 @@ function bindStep(step) {
   const altre = stage.querySelector("#altre");
   if (altre) altre.addEventListener("input", e => { state.answers[step.id + "_altre"] = e.target.value; refreshNext(); });
   const txt = stage.querySelector("#txt");
+  stage.querySelectorAll("[data-starter]").forEach(b => b.addEventListener("click", () => {
+    const t = stage.querySelector("#txt");
+    const cur = t.value.replace(/\s+$/, "");
+    t.value = (cur ? cur + (/[.!?]$/.test(cur) ? " " : ". ") : "") + b.dataset.starter + " ";
+    t.dispatchEvent(new Event("input"));
+    t.focus();
+    t.setSelectionRange(t.value.length, t.value.length);
+  }));
+  if (txt) txt.addEventListener("input", () => {
+    const n = $("#next");
+    if (n && !state.backToReview) n.innerHTML = `${txt.value.trim() ? "Continuar" : "Ometre"} <span class="arrow" aria-hidden="true">→</span>`;
+  });
   if (txt) txt.addEventListener("input", e => {
     state.answers[step.id] = e.target.value;
     $("#tcount").textContent = `${e.target.value.length} / ${MAX_TEXT}`;
@@ -877,7 +916,7 @@ function choose(name, value) {
   state.answers[name] = value;
   document.querySelectorAll(`#stage .choice[data-name="${name}"]`).forEach(b =>
     b.setAttribute("aria-checked", String(b.dataset.value === value)));
-  if (name === "q8" && value !== "Sí") delete state.answers.q9;
+  if (name === "q9" && value !== "Sí") delete state.answers.q10;
   if (step.other) {
     const isOther = value === step.other;
     $("#other-wrap").hidden = !isOther;
@@ -949,8 +988,12 @@ function payload() {
       }
       return;
     }
-    out[`${s.id.slice(1).padStart(2, "0")}. ${s.short}`] = shown.includes(s) ? (answerFor(s) || "En blanc") : "No aplica";
+    let val = shown.includes(s) ? (answerFor(s) || "En blanc") : "No aplica";
+    if (s.anon && val !== "En blanc" && val !== "No aplica") val = "Enviat com a comentari anònim";
+    out[`${s.id.slice(1).padStart(2, "0")}. ${s.short}`] = val;
   });
+  out._enquesta = MODE === "delegats" ? "Delegats" : "General";
+  out._comments = shown.filter(s => s.anon && (a[s.id] || "").trim()).map(s => ({ tema: s.tema, text: a[s.id].trim() }));
   return out;
 }
 
