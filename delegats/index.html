@@ -487,8 +487,10 @@ const CONFIG = {
 };
 const DEMO = !CONFIG.ENDPOINT.startsWith("https://script.google.com/");
 const CONTACT_TEXT = CONFIG.CONTACT;
-const MODE = (new URLSearchParams(location.search).get("mode") === "delegats" || /\/delegats(\/|\/index\.html)?$/.test(location.pathname)) ? "delegats" : "general";
-const SHEET_TAB = MODE === "delegats" ? "Delegats" : "Respostes";
+const MODE_PARAM = new URLSearchParams(location.search).get("mode");
+const MODE = (MODE_PARAM === "delegats" || /\/delegats(\/|\/index\.html)?$/.test(location.pathname)) ? "delegats"
+  : (MODE_PARAM === "professorat" || /\/professorat(\/|\/index\.html)?$/.test(location.pathname)) ? "professorat" : "general";
+const SHEET_TAB = { delegats: "Delegats", professorat: "Professorat", general: "Respostes" }[MODE];
 const SENT_KEY = "quorum-enviada-" + MODE;
 
 /* ================= TEXTOS D'INFORMACIÓ ================= */
@@ -527,7 +529,7 @@ const INFO = {
 };
 
 /* ================= PREGUNTES ================= */
-const BLOCKS = { tu: "Abans de començar", vaga: "Vaga", ce: "Consell escolar", pet: "Peticions i comunicació", val: "Valoració", cd: "Consell de delegats", prop: "Propostes" };
+const BLOCKS = { tu: "Abans de començar", vaga: "Vaga", ce: "Consell escolar", pet: "Peticions i comunicació", val: "Valoració", cd: "Consell de delegats", prop: "Propostes", sobre: "Sobre tu", pp: "Participació del professorat", al: "L'alumnat de batxillerat" };
 const G_STEPS = [
   { id: "identitat", block: "tu", type: "identity", q: "Qui respon?",
     help: "Unes dades bàsiques abans de començar. Les respostes no es mostraran mai al costat del teu nom." },
@@ -599,7 +601,36 @@ const D_STEPS = [
     help: "Opcional. Si us plau, sense noms de persones." },
   { id: "revisio", block: null, type: "review" }
 ];
-const STEPS = MODE === "delegats" ? D_STEPS : G_STEPS;
+const G4 = ["Gens", "Poc", "Bastant", "Molt"];
+const T_STEPS = [
+  { id: "t1", block: "sobre", type: "choice", short: "Anys al centre",
+    q: "Quants anys fa que treballes al centre?", opts: ["Menys de 5", "5 o més"],
+    help: "Només ho demanem en dues franges perquè ningú es pugui identificar." },
+  { id: "t2", block: "pp", type: "choice", short: "Claustres per debatre i decidir",
+    q: "Fins a quin punt els claustres són un espai on es pot debatre i decidir?", opts: G4 },
+  { id: "t3", block: "pp", type: "choice", short: "Influència en les decisions generals",
+    q: "Fins a quin punt sents que pots influir en les decisions generals de l'institut?", opts: G4 },
+  { id: "t4", block: "pp", type: "choice", short: "Què passa amb les propostes",
+    q: "Quan has fet una proposta a direcció, què ha passat normalment?", opts: ["Se n'ha fet cas", "S'ha escoltat, però no ha canviat res", "No hi ha hagut resposta", "No n'he fet cap"] },
+  { id: "t5", block: "pp", type: "choice", short: "Llibertat per discrepar",
+    q: "Fins a quin punt et sents lliure per discrepar de direcció sense que tingui conseqüències?", opts: G4 },
+  { id: "c1", block: "pp", type: "comment", anon: true, short: "Comentari sobre la participació", tema: "Participació del professorat",
+    q: "Vols explicar alguna situació concreta sobre com es prenen les decisions al centre?",
+    help: "Opcional. Una situació concreta ajuda molt més que una opinió general." },
+  { id: "t6", block: "al", type: "choice", short: "Participació de l'alumnat de batxillerat",
+    q: "Com valores la participació de l'alumnat de batxillerat en la vida del centre?", opts: ["Molt baixa", "Baixa", "Adequada", "Alta"] },
+  { id: "t7", block: "al", type: "choice", short: "El 75% per a les vagues",
+    q: "Què et sembla que es demani un 75% de la classe per autoritzar una vaga de l'alumnat?", opts: ["Massa alt", "Adequat", "Massa baix", "No en tinc opinió"] },
+  { id: "t8", block: "al", type: "choice", short: "Propostes dels delegats al claustre",
+    q: "Les propostes del consell de delegats arriben al claustre?", opts: ["Sempre", "A vegades", "Mai", "No ho sé"] },
+  { id: "t9", block: "al", type: "choice", short: "Suport a una proposta conjunta",
+    q: "Donaries suport a una proposta conjunta d'alumnat i professorat per millorar la participació al centre?", opts: ["Sí", "No", "Potser"] },
+  { id: "t10", block: "val", type: "textarea", anon: true, tema: "Professorat", short: "Comentari final", optional: true,
+    q: "Hi ha alguna cosa més que vulguis dir?",
+    help: "Opcional. El que sigui, gran o petit. Si us plau, sense noms de persones." },
+  { id: "revisio", block: null, type: "review" }
+];
+const STEPS = MODE === "delegats" ? D_STEPS : MODE === "professorat" ? T_STEPS : G_STEPS;
 const CARRECS = MODE === "delegats" ? ["Delegat/da", "Sotsdelegat/da"] : ["Delegat/da", "Sotsdelegat/da", "No"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const P_MAX = 3;
@@ -612,7 +643,7 @@ const COURSES = ["3r ESO", "4t ESO", "1r Batxillerat", "2n Batxillerat"];
 const GROUPS = ["A", "B", "C", "D", "E"];
 const LETTERS = "abcdefghi";
 const MAX_TEXT = 600;
-const ALL_Q = STEPS.filter(s => /^[qd]\d+$/.test(s.id));
+const ALL_Q = STEPS.filter(s => /^[qdt]\d+$/.test(s.id));
 
 /* Tres traços de bolígraf lleugerament diferents, perquè cap cercle surti igual */
 const CIRCLES = [
@@ -815,8 +846,8 @@ function renderStep() {
         <p class="qhelp">Pots canviar qualsevol resposta abans d'enviar.</p>
       </div>
       <ul class="review">
-        <li><span class="n">··</span><span><span class="rq">Qui respon</span><span class="ra">${esc(answerFor(STEPS[0]))}</span></span>
-          <button class="edit" type="button" data-edit="identitat">Canviar</button></li>
+        ${MODE === "professorat" ? "" : `<li><span class="n">··</span><span><span class="rq">Qui respon</span><span class="ra">${esc(answerFor(STEPS[0]))}</span></span>
+          <button class="edit" type="button" data-edit="identitat">Canviar</button></li>`}
         ${ALL_Q.filter(s => shown.includes(s)).map(s => {
           const ans = answerFor(s);
           return `<li><span class="n">${s.id.slice(1).padStart(2, "0")}</span>
@@ -829,7 +860,7 @@ function renderStep() {
       </ul>
       <label class="consent">
         <input type="checkbox" id="consent" ${state.consent ? "checked" : ""}>
-        <span>Tinc 14 anys o més, sóc alumne o alumna del centre i accepto que les meves respostes es facin servir tal com s'explica a <button type="button" class="inline-link" data-drawer>què farem amb les respostes</button>.</span>
+        <span>${MODE === "professorat" ? "Faig classe a batxillerat al centre i accepto que les meves respostes anònimes es facin servir tal com s'explica a" : "Tinc 14 anys o més, sóc alumne o alumna del centre i accepto que les meves respostes es facin servir tal com s'explica a"} <button type="button" class="inline-link" data-drawer>què farem amb les respostes</button>.</span>
       </label>
       <div class="hp" aria-hidden="true"><label for="hp">Deixa aquest camp buit</label><input id="hp" type="text" tabindex="-1" autocomplete="off"></div>
       ${DEMO ? `<p class="note">Aquesta còpia de la pàgina encara no està connectada al full de respostes. Pots provar-la sencera, però la resposta no s'enviarà.</p>` : ""}
@@ -970,15 +1001,19 @@ let submissionId = null;
 function payload() {
   const a = state.answers;
   const shown = visible();
-  const out = {
+  const out = MODE === "professorat" ? {
+    "ID": submissionId,
+    "Dia": new Date().toISOString().slice(0, 10),
+    "_full": SHEET_TAB
+  } : {
     "ID": submissionId,
     "Nom i cognoms": (a.nom || "").trim(),
     "Correu electrònic": (a.correu || "").trim().toLowerCase(),
     "Curs": a.curs || "",
     "Grup": a.grup || "",
+    "Càrrec": a.carrec || "",
     "_full": SHEET_TAB
   };
-  out["Càrrec"] = a.carrec || "";
   ALL_Q.forEach(s => {
     if (s.type === "proposals") {
       const on = shown.includes(s);
@@ -992,7 +1027,7 @@ function payload() {
     if (s.anon && val !== "En blanc" && val !== "No aplica") val = "Enviat com a comentari anònim";
     out[`${s.id.slice(1).padStart(2, "0")}. ${s.short}`] = val;
   });
-  out._enquesta = MODE === "delegats" ? "Delegats" : "General";
+  out._enquesta = { delegats: "Delegats", professorat: "Professorat", general: "General" }[MODE];
   out._comments = shown.filter(s => s.anon && (a[s.id] || "").trim()).map(s => ({ tema: s.tema, text: a[s.id].trim() }));
   return out;
 }
@@ -1045,7 +1080,7 @@ function finish(mode) {
       <div class="cta-row"><button class="btn secondary" type="button" id="restart">Tornar a la portada</button></div>` : `
       <p class="kicker">Resposta enviada</p>
       <h1 class="display">${underline("Gràcies")}.</h1>
-      <p class="lede">${MODE === "delegats" ? "La teva resposta ha arribat. Si l'altre delegat o delegada del teu grup encara no l'ha feta, passa-li l'enllaç." : "La teva resposta ha arribat. Com més alumnes responguin, més pes tindran els resultats. Si tens companys de 3r d'ESO a 2n de batxillerat que encara no l'han feta, passa'ls l'enllaç."}</p>
+      <p class="lede">${MODE === "professorat" ? "La resposta ha arribat, de manera anònima. Si coneixes altres professors de batxillerat que encara no l'han feta, passa'ls l'enllaç." : MODE === "delegats" ? "La teva resposta ha arribat. Si l'altre delegat o delegada del teu grup encara no l'ha feta, passa-li l'enllaç." : "La teva resposta ha arribat. Com més alumnes responguin, més pes tindran els resultats. Si tens companys de 3r d'ESO a 2n de batxillerat que encara no l'han feta, passa'ls l'enllaç."}</p>
       ${MODE === "general" && isDelegate ? `<div class="cta-row"><a class="btn" href="delegats/" id="to-delegats">Continuar amb el mòdul de delegats <span class="arrow" aria-hidden="true">→</span></a>
         <span class="meta">Són 8 preguntes més. Les teves dades ja hi sortiran posades.</span></div>` : ""}
       ${MODE === "general" && !isDelegate ? `<p class="crosslink">Si ets delegat o delegada, també pots respondre el <a href="delegats/">mòdul per a delegats</a>.</p>` : ""}
@@ -1126,7 +1161,60 @@ function applyDelegatsHome() {
     `<section class="drawer-section"><h2>${esc(i.title)}</h2><div class="more open"><div><div class="inner">${i.html}</div></div></div></section>`).join("");
 }
 
+function applyProfessoratHome() {
+  document.title = "Quòrum · Professorat";
+  document.querySelector(".kicker").textContent = "Institut Vil·la Romana · Professorat de batxillerat";
+  const svg = document.querySelector("#hero-title .underlined svg").outerHTML;
+  $("#hero-title").innerHTML = `Al claustre, la vostra veu <span class="underlined">compta?${svg}</span>`;
+  document.querySelector(".hero .lede").textContent = "Una enquesta curta i anònima per al professorat de batxillerat. No demanem nom ni correu. Volem saber com funciona la participació al centre, la vostra i la de l'alumnat.";
+  document.querySelector(".cta-row .meta").innerHTML = `<span id="meta-count">10</span> preguntes · 4 minuts · totalment anònima`;
+  $("#cta-alt").hidden = true;
+  $("#crosslink").hidden = true;
+  document.querySelector(".sample-meta").textContent = "Pregunta 03 de 10 · Participació del professorat";
+  $("#sample-q").textContent = "Fins a quin punt sents que pots influir en les decisions generals de l'institut?";
+  SAMPLE_OPTS.splice(0, SAMPLE_OPTS.length, "Gens", "Poc", "Bastant", "Molt");
+  samplePick = 1; renderSample();
+  document.querySelector(".topic-grid").innerHTML = `
+    <div class="topic"><span class="count">4</span><span class="name">Participació del professorat</span><span class="desc">Els claustres, les propostes a direcció i la llibertat per discrepar.</span></div>
+    <div class="topic"><span class="count">4</span><span class="name">L'alumnat de batxillerat</span><span class="desc">La seva participació, el 75% de les vagues i les propostes dels delegats.</span></div>
+    <div class="topic"><span class="count">2</span><span class="name">Sobre tu i comentaris</span><span class="desc">Només els anys al centre, en dues franges, i un espai per dir el que vulguis.</span></div>`;
+  INFO.why.html = `
+    <p>Un grup d'alumnes de batxillerat està recollint dades sobre com funciona la participació al centre: les vagues, el consell escolar, el consell de delegats i què passa amb les propostes.</p>
+    <p>Ens interessa també el punt de vista del professorat, perquè moltes millores només tiren endavant si les proposem junts.</p>
+    <p>No és una campanya contra ningú. Les preguntes parlen de procediments, no de persones.</p>`;
+  INFO.rules.html = `
+    <ul>
+      <li>Respon només si fas classe a batxillerat al centre aquest curs.</li>
+      <li>Una resposta per persona.</li>
+      <li>No escriguis noms de persones. Si n'apareixen, s'esborren.</li>
+      <li>Els comentaris són opcionals.</li>
+    </ul>`;
+  INFO.data.html = `
+    <h3>Què farem</h3>
+    <ul>
+      <li>Comptar les respostes i publicar-ne els percentatges, només si n'hi ha prou perquè ningú sigui identificable.</li>
+      <li>Guardar els comentaris escrits en una llista apart, barrejats amb els de l'alumnat i sense l'hora exacta.</li>
+    </ul>
+    <h3>Què no demanem</h3>
+    <ul>
+      <li>Ni nom, ni correu, ni departament, ni assignatura. Dels anys al centre només demanem si són menys de 5 o més.</li>
+      <li>De la resposta només es guarda el dia, no l'hora.</li>
+    </ul>
+    <h3>Contacte</h3>
+    <p>Per a qualsevol dubte, podeu escriure a <strong>${CONTACT_TEXT}</strong>.</p>`;
+  document.querySelector('[data-info="why"]').innerHTML = INFO.why.html;
+  document.querySelector('[data-info="rules"]').innerHTML = INFO.rules.html;
+  document.querySelector('[data-info="data"]').innerHTML = INFO.data.html;
+  document.querySelector("#why .sum").textContent = "L'alumnat de batxillerat està recollint dades sobre la participació al centre, i ens interessa també la mirada del professorat.";
+  document.querySelector("#rules .sum").textContent = "Només per al professorat que fa classe a batxillerat, una resposta per persona. Sense noms de persones.";
+  document.querySelector("#data .sum").textContent = "És totalment anònima. No demanem nom ni correu, i només es guarda el dia de la resposta.";
+  document.querySelectorAll(".disclaimer, .footer span:last-child").forEach(e => e.textContent = "Iniciativa de l'alumnat de batxillerat. No és una pàgina oficial del centre.");
+  $("#drawer-body").innerHTML = Object.values(INFO).map(i =>
+    `<section class="drawer-section"><h2>${esc(i.title)}</h2><div class="more open"><div><div class="inner">${i.html}</div></div></div></section>`).join("");
+}
+
 function start(data) {
+  if (MODE === "professorat") applyProfessoratHome();
   if (MODE === "delegats") {
     applyDelegatsHome();
     try {
