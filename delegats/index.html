@@ -1084,6 +1084,7 @@ function finish(mode) {
       ${MODE === "general" && isDelegate ? `<div class="cta-row"><a class="btn" href="delegats/" id="to-delegats">Continuar amb el mòdul de delegats <span class="arrow" aria-hidden="true">→</span></a>
         <span class="meta">Són 8 preguntes més. Les teves dades ja hi sortiran posades.</span></div>` : ""}
       ${MODE === "general" && !isDelegate ? `<p class="crosslink">Si ets delegat o delegada, també pots respondre el <a href="delegats/">mòdul per a delegats</a>.</p>` : ""}
+      ${MODE === "professorat" ? `<p class="crosslink">Si et vols implicar en una proposta conjunta amb l'alumnat, pots escriure a <a href="mailto:${esc(CONFIG.CONTACT)}">${esc(CONFIG.CONTACT)}</a>. La teva resposta a l'enquesta continua sent anònima.</p>` : ""}
       <div class="cta-row">
         <button class="btn ${MODE === "general" && isDelegate ? "secondary" : ""}" type="button" id="copy">Copiar l'enllaç <span class="arrow" aria-hidden="true">→</span></button>
         <span class="meta" id="copy-msg" role="status"></span>
