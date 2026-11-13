@@ -483,7 +483,7 @@ dialog.drawer::backdrop { background: rgba(0, 0, 0, 0.35); }
 const CONFIG = {
   ENDPOINT: "https://script.google.com/macros/s/AKfycbyezcep8Yp9rdW5sv9NeOd-NDxtjZi7nzlUHPfadQ3XpIdyctwxkH6pDgXiNrwncXa5/exec",
   CONTACT: "recullalumnativr@proton.me",
-  DELETE_BY: "el final del curs 2026-27"
+  DELETE_BY: "al final del curs 2026-27"
 };
 const DEMO = !CONFIG.ENDPOINT.startsWith("https://script.google.com/");
 const CONTACT_TEXT = CONFIG.CONTACT;
@@ -525,7 +525,16 @@ const INFO = {
     <h3>Per què demanem el nom i el correu</h3>
     <p>Només per comprovar que responen alumnes reals i que cadascú respon un sol cop. El correu fa més difícil que algú respongui amb el nom d'una altra persona. Així ningú podrà dir que els resultats són inventats.</p>
     <h3>Esborrar la teva resposta</h3>
-    <p>Pots demanar que s'esborri escrivint a <strong>${CONTACT_TEXT}</strong>. Totes les dades s'eliminaran a ${CONFIG.DELETE_BY}.</p>` }
+    <p>Pots demanar que s'esborri escrivint a <strong>${CONTACT_TEXT}</strong>. Totes les dades s'eliminaran ${CONFIG.DELETE_BY}.</p>
+    <h3>Protecció de dades</h3>
+    <ul>
+      <li><strong>Responsables:</strong> els delegats i delegades de batxillerat de l'Institut Vil·la Romana que impulsen aquesta enquesta. No és una iniciativa del centre ni del Departament. Contacte: <strong>${CONTACT_TEXT}</strong>.</li>
+      <li><strong>Finalitat:</strong> elaborar un informe amb resultats agregats sobre la participació de l'alumnat i presentar-ne les conclusions pels canals oficials del centre.</li>
+      <li><strong>Base legal:</strong> el teu consentiment, que dones en marcar la casella abans d'enviar. A partir de 14 anys el pots donar tu mateix (article 7 de la Llei orgànica 3/2018 de protecció de dades). Si encara no en tens 14, no responguis.</li>
+      <li><strong>On es guarden:</strong> en un full de càlcul de Google al qual només tenen accés els responsables. Ni la direcció ni el professorat hi tenen accés.</li>
+      <li><strong>Quant de temps:</strong> fins ${CONFIG.DELETE_BY}. Llavors s'esborra tot.</li>
+      <li><strong>Els teus drets:</strong> pots demanar veure, corregir o esborrar les teves dades, o retirar el consentiment, escrivint al correu de contacte. També pots presentar una reclamació a l'Agència Espanyola de Protecció de Dades (aepd.es).</li>
+    </ul>` }
 };
 
 /* ================= PREGUNTES ================= */
@@ -1208,6 +1217,8 @@ function applyProfessoratHome() {
       <li>Ni nom, ni correu, ni departament, ni assignatura. Dels anys al centre només demanem si són menys de 5 o més.</li>
       <li>De la resposta només es guarda el dia, no l'hora.</li>
     </ul>
+    <h3>Qui té les respostes</h3>
+    <p>Els delegats i delegades de batxillerat que impulsen aquesta enquesta. Es guarden en un full de càlcul de Google al qual només tenen accés ells. Ni la direcció ni la resta del professorat hi tenen accés. No és una iniciativa del centre ni del Departament.</p>
     <h3>Contacte</h3>
     <p>Per a qualsevol dubte, podeu escriure a <strong>${CONTACT_TEXT}</strong>.</p>`;
   document.querySelector('[data-info="why"]').innerHTML = INFO.why.html;
